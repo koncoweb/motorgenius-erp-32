@@ -51,7 +51,14 @@ export default function Login() {
       navigate('/');
     } catch (error: any) {
       console.error("Login error:", error);
-      setLoginError(error.message || "Failed to sign in. Please check your credentials.");
+      
+      // Handle the specific database schema error
+      if (error.message === "Database error querying schema") {
+        setLoginError("There was an issue with the database. Please try again later or contact support.");
+      } else {
+        setLoginError(error.message || "Failed to sign in. Please check your credentials.");
+      }
+      
       toast.error(error.message || "Failed to sign in");
     } finally {
       setIsLoading(false);

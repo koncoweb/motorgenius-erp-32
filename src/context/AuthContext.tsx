@@ -108,7 +108,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       console.log("Signing in with email:", email);
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ 
+        email, 
+        password 
+      });
       
       if (error) {
         console.error("Sign in error:", error);
@@ -118,8 +121,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("Sign in successful, user:", data.user?.id);
       
       if (data.user) {
-        const profileData = await fetchProfile(data.user.id);
-        setProfile(profileData);
+        try {
+          const profileData = await fetchProfile(data.user.id);
+          setProfile(profileData);
+        } catch (profileError) {
+          console.error("Error fetching profile after sign in:", profileError);
+          // Continue with login even if profile fetch fails
+        }
       }
       
       navigate('/');
