@@ -30,7 +30,7 @@ const App = () => (
             <Route path="/auth/register" element={<Register />} />
             
             {/* Protected Routes */}
-            <Route path="/" element={
+            <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
@@ -57,7 +57,7 @@ const App = () => (
             } />
             
             {/* Redirect root to dashboard */}
-            <Route path="/" element={<Navigate to="/auth/login" />} />
+            <Route path="/" element={<Navigate to="/dashboard" />} />
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />
