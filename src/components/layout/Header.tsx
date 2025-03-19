@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useAuth } from "@/context/AuthContext"; 
 import { Button } from "@/components/ui/button";
 import { 
   Menu, 
@@ -7,6 +8,7 @@ import {
   Search,
   Maximize,
   User,
+  LogOut,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -35,6 +37,22 @@ export const Header: React.FC<HeaderProps> = ({
   toggleSidebar,
   isSidebarOpen,
 }) => {
+  const { user, profile, signOut } = useAuth();
+  
+  // Create user initials for avatar fallback
+  const getUserInitials = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`;
+    } else if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+
+  const handleSignOut = () => {
+    signOut();
+  };
+  
   return (
     <header className="flex items-center h-16 px-6 border-b bg-card/50 backdrop-blur-sm">
       <div className="flex items-center gap-4">
@@ -92,17 +110,24 @@ export const Header: React.FC<HeaderProps> = ({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" alt="User" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarImage src={profile?.avatar_url || "/placeholder.svg"} alt={user?.email || "User"} />
+                <AvatarFallback>{getUserInitials()}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Admin User</p>
+                <p className="text-sm font-medium leading-none">
+                  {profile?.first_name && profile?.last_name 
+                    ? `${profile.first_name} ${profile.last_name}` 
+                    : "User"}
+                </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  admin@motorgenius.com
+                  {user?.email}
+                </p>
+                <p className="text-xs font-medium text-muted-foreground mt-1">
+                  Role: {profile?.role === "admin" ? "Admin" : "Employee"}
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -118,8 +143,9 @@ export const Header: React.FC<HeaderProps> = ({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              Log out
+            <DropdownMenuItem onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
