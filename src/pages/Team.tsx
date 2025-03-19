@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -42,7 +41,7 @@ interface Assignment {
   progress: number;
 }
 
-const mockTeamMembers = [
+const mockTeamMembers: TeamMember[] = [
   {
     id: "1",
     name: "John Doe",
@@ -50,7 +49,8 @@ const mockTeamMembers = [
     department: "Motor Repair",
     email: "john.doe@example.com",
     phone: "+1 (555) 123-4567",
-    status: "available" as const,
+    status: "available",
+    avatar: undefined,
   },
   {
     id: "2",
@@ -59,7 +59,8 @@ const mockTeamMembers = [
     department: "QA & Testing",
     email: "alice.smith@example.com",
     phone: "+1 (555) 987-6543",
-    status: "busy" as const,
+    status: "busy",
+    avatar: undefined,
   },
   {
     id: "3",
@@ -68,7 +69,8 @@ const mockTeamMembers = [
     department: "Generator Repair",
     email: "bob.johnson@example.com",
     phone: "+1 (555) 456-7890",
-    status: "offsite" as const,
+    status: "offsite",
+    avatar: undefined,
   },
   {
     id: "4",
@@ -77,7 +79,8 @@ const mockTeamMembers = [
     department: "Design & Development",
     email: "emma.wilson@example.com",
     phone: "+1 (555) 234-5678",
-    status: "available" as const,
+    status: "available",
+    avatar: undefined,
   },
   {
     id: "5",
@@ -86,7 +89,8 @@ const mockTeamMembers = [
     department: "Motor Repair",
     email: "mike.thomas@example.com",
     phone: "+1 (555) 345-6789",
-    status: "leave" as const,
+    status: "leave",
+    avatar: undefined,
   },
 ];
 
