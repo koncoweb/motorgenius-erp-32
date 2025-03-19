@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -27,10 +27,17 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  
+  // If already logged in, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
   
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -52,14 +59,18 @@ export default function Login() {
     } catch (error: any) {
       console.error("Login error:", error);
       
-      // Handle the specific database schema error
+      // Handle specific errors with user-friendly messages
       if (error.message === "Database error querying schema") {
         setLoginError("There was an issue with the database. Please try again later or contact support.");
+      } else if (error.message === "Invalid login credentials") {
+        setLoginError("Invalid email or password. Please try again.");
+      } else if (error.message?.includes("network")) {
+        setLoginError("Network error. Please check your internet connection and try again.");
       } else {
         setLoginError(error.message || "Failed to sign in. Please check your credentials.");
       }
       
-      toast.error(error.message || "Failed to sign in");
+      toast.error(loginError || "Failed to sign in");
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +79,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">Login</CardTitle>
             <CardDescription>
@@ -111,8 +122,22 @@ export default function Login() {
                     </FormItem>
                   )}
                 />
+                
+                <div className="text-right text-sm">
+                  <Link to="/auth/forgot-password" className="text-primary hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
+                
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign in"}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign in"
+                  )}
                 </Button>
 
                 <div className="text-center text-sm">

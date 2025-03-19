@@ -24,6 +24,7 @@ type AuthContextType = {
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  refreshProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,6 +59,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Function to refresh the user profile
+  const refreshProfile = async () => {
+    if (!user) return;
+    try {
+      const profileData = await fetchProfile(user.id);
+      if (profileData) {
+        setProfile(profileData);
+      }
+    } catch (error) {
+      console.error("Error refreshing profile:", error);
+    }
+  };
+
   useEffect(() => {
     // Set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -67,8 +81,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(newSession?.user ?? null);
         
         if (newSession?.user) {
-          const profileData = await fetchProfile(newSession.user.id);
-          setProfile(profileData);
+          try {
+            const profileData = await fetchProfile(newSession.user.id);
+            setProfile(profileData);
+          } catch (error) {
+            console.error("Error fetching profile on auth state change:", error);
+            // Continue even if profile fetch fails
+          }
         } else {
           setProfile(null);
         }
@@ -88,8 +107,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
+          try {
+            const profileData = await fetchProfile(session.user.id);
+            setProfile(profileData);
+          } catch (error) {
+            console.error("Error fetching profile during initialization:", error);
+            // Continue even if profile fetch fails
+          }
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
@@ -130,11 +154,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       
-      navigate('/');
       return;
     } catch (error: any) {
       console.error("Exception during sign in:", error);
-      toast.error(error.message || "Failed to sign in");
       throw error;
     }
   };
@@ -186,7 +208,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signIn, 
       signUp, 
       signOut,
-      isAdmin
+      isAdmin,
+      refreshProfile
     }}>
       {children}
     </AuthContext.Provider>
