@@ -37,7 +37,7 @@ export default function Login() {
   // If already logged in, redirect to dashboard
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
   
@@ -56,8 +56,12 @@ export default function Login() {
     try {
       console.log("Attempting login with:", values.email);
       await signIn(values.email, values.password);
+      
+      // Successfully signed in
       toast.success("Login successful!");
-      navigate('/');
+      
+      // Force navigation to dashboard
+      navigate('/dashboard', { replace: true });
     } catch (error: any) {
       console.error("Login error:", error);
       
@@ -82,6 +86,11 @@ export default function Login() {
   const tryDemoAccount = () => {
     form.setValue("email", "admin@erp-system.com");
     form.setValue("password", "admin123");
+    
+    // Auto-submit the form after setting demo values
+    setTimeout(() => {
+      form.handleSubmit(onSubmit)();
+    }, 500);
   };
 
   return (
