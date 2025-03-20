@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -31,6 +32,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
   
   // If already logged in, redirect to dashboard
   useEffect(() => {
@@ -60,8 +62,9 @@ export default function Login() {
       console.error("Login error:", error);
       
       // Handle specific errors with user-friendly messages
-      if (error.message === "Database error querying schema") {
-        setLoginError("There was an issue with the database. Please try again later or contact support.");
+      if (error.message?.includes("Database error querying schema")) {
+        setMaintenanceMode(true);
+        setLoginError("The authentication service is currently experiencing issues. Please try again later or use the demo account below.");
       } else if (error.message === "Invalid login credentials") {
         setLoginError("Invalid email or password. Please try again.");
       } else if (error.message?.includes("network")) {
@@ -76,6 +79,11 @@ export default function Login() {
     }
   };
 
+  const tryDemoAccount = () => {
+    form.setValue("email", "admin@erp-system.com");
+    form.setValue("password", "admin123");
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
@@ -87,7 +95,16 @@ export default function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {loginError && (
+            {maintenanceMode && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  The system is currently in maintenance mode. You can still use the demo account below to explore the application.
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {loginError && !maintenanceMode && (
               <div className="mb-4 flex items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4" />
                 <p>{loginError}</p>
@@ -139,6 +156,17 @@ export default function Login() {
                     "Sign in"
                   )}
                 </Button>
+
+                {maintenanceMode && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full mt-2" 
+                    onClick={tryDemoAccount}
+                  >
+                    Use Demo Account
+                  </Button>
+                )}
 
                 <div className="text-center text-sm">
                   <p>Demo account: admin@erp-system.com / admin123</p>
