@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -36,7 +35,6 @@ export default function Login() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [supabaseStatus, setSupabaseStatus] = useState<string | null>(null);
   
-  // Check Supabase connection status
   useEffect(() => {
     const checkSupabaseConnection = async () => {
       try {
@@ -61,7 +59,6 @@ export default function Login() {
     checkSupabaseConnection();
   }, []);
   
-  // If already logged in, redirect to dashboard
   useEffect(() => {
     if (user) {
       console.log("User already logged in, redirecting to dashboard:", user);
@@ -84,7 +81,6 @@ export default function Login() {
     try {
       console.log("Attempting login with:", values.email);
       
-      // Try a direct Supabase auth call for more detailed errors
       const { data: directAuthData, error: directAuthError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password
@@ -97,19 +93,15 @@ export default function Login() {
       
       console.log("Direct auth successful:", directAuthData);
       
-      // Continue with the context signIn for consistent app state
       await signIn(values.email, values.password);
       
-      // Successfully signed in
       toast.success("Login successful!");
       console.log("Login successful, navigating to dashboard");
       
-      // Force navigation to dashboard
       navigate('/dashboard', { replace: true });
     } catch (error: any) {
       console.error("Login error:", error);
       
-      // Handle specific errors with user-friendly messages
       if (error.message?.includes("Database error querying schema") || 
           error.message?.includes("Database connection")) {
         setMaintenanceMode(true);
@@ -134,7 +126,6 @@ export default function Login() {
     form.setValue("email", "admin@erp-system.com");
     form.setValue("password", "admin123");
     
-    // Auto-submit the form after setting demo values
     setTimeout(() => {
       console.log("Auto-submitting form with demo account");
       form.handleSubmit(onSubmit)();
