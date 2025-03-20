@@ -19,6 +19,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "sonner";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -33,11 +34,38 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [supabaseStatus, setSupabaseStatus] = useState<string | null>(null);
+  
+  // Check Supabase connection status
+  useEffect(() => {
+    const checkSupabaseConnection = async () => {
+      try {
+        console.log("Checking Supabase connection...");
+        const { data, error } = await supabase.from('profiles').select('*').limit(1);
+        
+        if (error) {
+          console.error("Supabase connection error:", error);
+          setSupabaseStatus(`Error: ${error.message}`);
+          setMaintenanceMode(true);
+        } else {
+          console.log("Supabase connection successful, found profiles:", data);
+          setSupabaseStatus("Connected");
+        }
+      } catch (err) {
+        console.error("Exception checking Supabase:", err);
+        setSupabaseStatus(`Exception: ${err}`);
+        setMaintenanceMode(true);
+      }
+    };
+    
+    checkSupabaseConnection();
+  }, []);
   
   // If already logged in, redirect to dashboard
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      console.log("User already logged in, redirecting to dashboard:", user);
+      navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
   
@@ -55,10 +83,26 @@ export default function Login() {
     
     try {
       console.log("Attempting login with:", values.email);
+      
+      // Try a direct Supabase auth call for more detailed errors
+      const { data: directAuthData, error: directAuthError } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password
+      });
+      
+      if (directAuthError) {
+        console.error("Direct auth error:", directAuthError);
+        throw directAuthError;
+      }
+      
+      console.log("Direct auth successful:", directAuthData);
+      
+      // Continue with the context signIn for consistent app state
       await signIn(values.email, values.password);
       
       // Successfully signed in
       toast.success("Login successful!");
+      console.log("Login successful, navigating to dashboard");
       
       // Force navigation to dashboard
       navigate('/dashboard', { replace: true });
@@ -66,10 +110,12 @@ export default function Login() {
       console.error("Login error:", error);
       
       // Handle specific errors with user-friendly messages
-      if (error.message?.includes("Database error querying schema")) {
+      if (error.message?.includes("Database error querying schema") || 
+          error.message?.includes("Database connection")) {
         setMaintenanceMode(true);
         setLoginError("The authentication service is currently experiencing issues. Please try again later or use the demo account below.");
-      } else if (error.message === "Invalid login credentials") {
+      } else if (error.message === "Invalid login credentials" || 
+                error.message?.includes("Invalid email or password")) {
         setLoginError("Invalid email or password. Please try again.");
       } else if (error.message?.includes("network")) {
         setLoginError("Network error. Please check your internet connection and try again.");
@@ -84,11 +130,13 @@ export default function Login() {
   };
 
   const tryDemoAccount = () => {
+    console.log("Using demo account...");
     form.setValue("email", "admin@erp-system.com");
     form.setValue("password", "admin123");
     
     // Auto-submit the form after setting demo values
     setTimeout(() => {
+      console.log("Auto-submitting form with demo account");
       form.handleSubmit(onSubmit)();
     }, 500);
   };
@@ -108,6 +156,7 @@ export default function Login() {
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
+                  {supabaseStatus && <div className="mb-2">Supabase status: {supabaseStatus}</div>}
                   The system is currently in maintenance mode. You can still use the demo account below to explore the application.
                 </AlertDescription>
               </Alert>
@@ -166,16 +215,14 @@ export default function Login() {
                   )}
                 </Button>
 
-                {maintenanceMode && (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full mt-2" 
-                    onClick={tryDemoAccount}
-                  >
-                    Use Demo Account
-                  </Button>
-                )}
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full mt-2" 
+                  onClick={tryDemoAccount}
+                >
+                  Use Demo Account
+                </Button>
 
                 <div className="text-center text-sm">
                   <p>Demo account: admin@erp-system.com / admin123</p>
