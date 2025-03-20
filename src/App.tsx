@@ -27,38 +27,18 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Auth Routes */}
-            <Route path="/auth/login" element={<Login />} />
-            <Route path="/auth/register" element={<Register />} />
-            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-            <Route path="/auth/reset-password" element={<ResetPassword />} />
+            {/* Auth Routes - redirecting to dashboard */}
+            <Route path="/auth/login" element={<Navigate to="/dashboard" />} />
+            <Route path="/auth/register" element={<Navigate to="/dashboard" />} />
+            <Route path="/auth/forgot-password" element={<Navigate to="/dashboard" />} />
+            <Route path="/auth/reset-password" element={<Navigate to="/dashboard" />} />
             
-            {/* Protected Routes */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/projects" element={
-              <ProtectedRoute>
-                <Projects />
-              </ProtectedRoute>
-            } />
-            <Route path="/customers" element={
-              <ProtectedRoute>
-                <Customers />
-              </ProtectedRoute>
-            } />
-            <Route path="/inventory" element={
-              <ProtectedRoute>
-                <Inventory />
-              </ProtectedRoute>
-            } />
-            <Route path="/team" element={
-              <ProtectedRoute requiredRole="admin">
-                <Team />
-              </ProtectedRoute>
-            } />
+            {/* All pages now accessible without authentication */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/inventory" element={<Inventory />} />
+            <Route path="/team" element={<Team />} />
             
             {/* Redirect root to dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" />} />
