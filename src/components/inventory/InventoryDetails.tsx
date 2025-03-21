@@ -10,18 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
-interface InventoryItem {
-  id: string;
-  sku: string;
-  name: string;
-  category: string;
-  currentStock: number;
-  minStock: number;
-  lastRestocked: string;
-  location: string;
-  unitPrice: number;
-}
+import { InventoryItem, getStockStatus } from "./inventoryUtils";
 
 interface InventoryDetailsProps {
   item: InventoryItem | null;
@@ -37,16 +26,6 @@ export const InventoryDetails: React.FC<InventoryDetailsProps> = ({
   onReorder,
 }) => {
   if (!item) return null;
-
-  const getStockStatus = (current: number, min: number) => {
-    if (current <= min) {
-      return "low";
-    } else if (current <= min * 1.5) {
-      return "medium";
-    } else {
-      return "good";
-    }
-  };
   
   const getStockStatusBadge = (status: string) => {
     switch (status) {
