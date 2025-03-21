@@ -22,6 +22,7 @@ import {
 } from "@/components/inventory/inventoryUtils";
 import { useQuery } from "@tanstack/react-query";
 import { fetchInventoryItems } from "@/services/inventoryService";
+import { AddInventoryForm } from "@/components/inventory/AddInventoryForm";
 
 const Inventory: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +31,7 @@ const Inventory: React.FC = () => {
   const [stockStatusFilter, setStockStatusFilter] = useState("all");
   const [selectedItem, setSelectedItem] = useState<null | InventoryItem>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   
   // Fetch inventory items with react-query
   const { data: inventoryItems, isLoading, error } = useQuery({
@@ -39,7 +41,7 @@ const Inventory: React.FC = () => {
   });
   
   const handleAddItem = () => {
-    toast.success("This feature will be available in the next update.");
+    setAddItemDialogOpen(true);
   };
   
   const handleViewItem = (id: string) => {
@@ -125,6 +127,11 @@ const Inventory: React.FC = () => {
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
         onReorder={handleReorderItem}
+      />
+      
+      <AddInventoryForm 
+        open={addItemDialogOpen}
+        onOpenChange={setAddItemDialogOpen}
       />
     </Layout>
   );

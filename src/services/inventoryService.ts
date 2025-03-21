@@ -53,3 +53,36 @@ export async function getLowStockItems(): Promise<InventoryItem[]> {
     return [];
   }
 }
+
+// Fungsi baru untuk menambahkan item inventaris
+export async function addInventoryItem(item: Omit<InventoryItem, 'id'>): Promise<InventoryItem | null> {
+  try {
+    // Convert from camelCase (frontend) to snake_case (database)
+    const dbItem = {
+      sku: item.sku,
+      name: item.name,
+      category: item.category,
+      current_stock: item.currentStock,
+      min_stock: item.minStock,
+      last_restocked: item.lastRestocked,
+      location: item.location,
+      unit_price: item.unitPrice
+    };
+
+    const { data, error } = await supabase
+      .from('inventory_items')
+      .insert(dbItem)
+      .select('*')
+      .single();
+    
+    if (error) {
+      console.error('Error adding inventory item:', error);
+      throw error;
+    }
+    
+    return mapInventoryItem(data);
+  } catch (error) {
+    console.error('Failed to add inventory item:', error);
+    return null;
+  }
+}
