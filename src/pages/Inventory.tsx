@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
@@ -20,8 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, MoreHorizontal, QrCode, Search } from "lucide-react";
+import { Plus, MoreHorizontal, QrCode, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import {
@@ -30,6 +28,8 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { InventoryFilters } from "@/components/inventory/InventoryFilters";
+import { InventoryDetails } from "@/components/inventory/InventoryDetails";
 
 interface InventoryItem {
   id: string;
@@ -102,6 +102,14 @@ const mockInventoryItems = [
 ];
 
 const Inventory: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [stockStatusFilter, setStockStatusFilter] = useState("all");
+  const [filteredItems, setFilteredItems] = useState(mockInventoryItems);
+  const [selectedItem, setSelectedItem] = useState<null | typeof mockInventoryItems[0]>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  
   const handleAddItem = () => {
     toast.success("This feature will be available in the next update.");
   };
@@ -132,6 +140,51 @@ const Inventory: React.FC = () => {
         return null;
     }
   };
+
+  const handleViewItem = (id: string) => {
+    const item = mockInventoryItems.find(item => item.id === id);
+    if (item) {
+      setSelectedItem(item);
+      setDetailsDialogOpen(true);
+    }
+  };
+  
+  const handleReorderItem = (sku: string) => {
+    toast.success(`Reorder placed for ${sku}`);
+    setDetailsDialogOpen(false);
+  };
+  
+  useEffect(() => {
+    let filtered = [...mockInventoryItems];
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        item =>
+          item.sku.toLowerCase().includes(query) ||
+          item.name.toLowerCase().includes(query) ||
+          item.category.toLowerCase().includes(query) ||
+          item.location.toLowerCase().includes(query)
+      );
+    }
+    
+    if (categoryFilter !== "all") {
+      filtered = filtered.filter(item => item.category === categoryFilter);
+    }
+    
+    if (locationFilter !== "all") {
+      filtered = filtered.filter(item => item.location === locationFilter);
+    }
+    
+    if (stockStatusFilter !== "all") {
+      filtered = filtered.filter(item => {
+        const status = getStockStatus(item.currentStock, item.minStock);
+        return status === stockStatusFilter;
+      });
+    }
+    
+    setFilteredItems(filtered);
+  }, [searchQuery, categoryFilter, locationFilter, stockStatusFilter]);
 
   return (
     <Layout>
@@ -175,18 +228,20 @@ const Inventory: React.FC = () => {
             <TabsTrigger value="all">All Items</TabsTrigger>
             <TabsTrigger value="low-stock">Low Stock</TabsTrigger>
           </TabsList>
-          
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              type="search" 
-              placeholder="Search inventory..." 
-              className="pl-8 w-[250px]" 
-            />
-          </div>
         </div>
         
         <TabsContent value="all" className="animate-in">
+          <InventoryFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            category={categoryFilter}
+            onCategoryChange={setCategoryFilter}
+            location={locationFilter}
+            onLocationChange={setLocationFilter}
+            stockStatus={stockStatusFilter}
+            onStockStatusChange={setStockStatusFilter}
+          />
+          
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -201,7 +256,7 @@ const Inventory: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockInventoryItems.map((item) => (
+                {filteredItems.map((item) => (
                   <TableRow key={item.id} className="hover:bg-muted/50">
                     <TableCell className="font-medium">{item.sku}</TableCell>
                     <TableCell>{item.name}</TableCell>
@@ -216,6 +271,14 @@ const Inventory: React.FC = () => {
                     <TableCell>${item.unitPrice}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleViewItem(item.id)}
+                        >
+                          <Eye className="h-4 w-4" />
+                          <span className="sr-only">View Details</span>
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -240,7 +303,7 @@ const Inventory: React.FC = () => {
                             <DropdownMenuItem onClick={() => toast.info(`Updating stock for ${item.sku}`)}>
                               Update Stock
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => toast.success(`Reorder placed for ${item.sku}`)}>
+                            <DropdownMenuItem onClick={() => handleReorderItem(item.sku)}>
                               Place Reorder
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -292,6 +355,13 @@ const Inventory: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
+      
+      <InventoryDetails
+        item={selectedItem}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        onReorder={handleReorderItem}
+      />
     </Layout>
   );
 };

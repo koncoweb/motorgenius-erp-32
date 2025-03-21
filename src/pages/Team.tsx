@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
@@ -13,10 +13,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { Plus, Calendar, Mail, Phone, UserPlus } from "lucide-react";
+import { Plus, Calendar, Mail, Phone, UserPlus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { TeamMemberDetails } from "@/components/team/TeamMemberDetails";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TeamMember {
   id: string;
@@ -142,6 +152,13 @@ const mockAssignments = [
 ];
 
 const Team: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [filteredMembers, setFilteredMembers] = useState(mockTeamMembers);
+  const [selectedMember, setSelectedMember] = useState<null | typeof mockTeamMembers[0]>(null);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  
   const handleAddTeamMember = () => {
     toast.success("This feature will be available in the next update.");
   };
@@ -164,6 +181,54 @@ const Team: React.FC = () => {
         return null;
     }
   };
+
+  React.useEffect(() => {
+    let filtered = [...mockTeamMembers];
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        member =>
+          member.name.toLowerCase().includes(query) ||
+          member.role.toLowerCase().includes(query) ||
+          member.department.toLowerCase().includes(query)
+      );
+    }
+    
+    if (departmentFilter !== "all") {
+      filtered = filtered.filter(member => member.department === departmentFilter);
+    }
+    
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(member => member.status === statusFilter);
+    }
+    
+    setFilteredMembers(filtered);
+  }, [searchQuery, departmentFilter, statusFilter]);
+  
+  const handleViewMember = (id: string) => {
+    const member = mockTeamMembers.find(m => m.id === id);
+    if (member) {
+      setSelectedMember(member);
+      setDetailsDialogOpen(true);
+    }
+  };
+  
+  const handleEmailMember = (email: string) => {
+    toast.info(`Emailing ${email}`);
+    setDetailsDialogOpen(false);
+  };
+  
+  const handleCallMember = (phone: string) => {
+    toast.info(`Calling ${phone}`);
+  };
+  
+  const handleViewSchedule = (name: string) => {
+    toast.info(`Viewing schedule for ${name}`);
+    setDetailsDialogOpen(false);
+  };
+
+  const departments = Array.from(new Set(mockTeamMembers.map(m => m.department)));
 
   return (
     <Layout>
@@ -210,6 +275,59 @@ const Team: React.FC = () => {
         </TabsList>
         
         <TabsContent value="team" className="animate-in">
+          <div className="flex flex-col md:flex-row gap-4 mb-6 items-end">
+            <div className="w-full md:w-64">
+              <Label htmlFor="search-team" className="text-sm">Search</Label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="search-team"
+                  placeholder="Search team members..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 w-full"
+                />
+              </div>
+            </div>
+            
+            <div className="w-full md:w-48">
+              <Label htmlFor="department-filter" className="text-sm">Department</Label>
+              <Select
+                value={departmentFilter}
+                onValueChange={setDepartmentFilter}
+              >
+                <SelectTrigger id="department-filter" className="w-full">
+                  <SelectValue placeholder="All Departments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  {departments.map(dept => (
+                    <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="w-full md:w-40">
+              <Label htmlFor="status-filter" className="text-sm">Status</Label>
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+              >
+                <SelectTrigger id="status-filter" className="w-full">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="available">Available</SelectItem>
+                  <SelectItem value="busy">Busy</SelectItem>
+                  <SelectItem value="offsite">Offsite</SelectItem>
+                  <SelectItem value="leave">Leave</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -223,8 +341,9 @@ const Team: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockTeamMembers.map((member) => (
-                  <TableRow key={member.id} className="hover:bg-muted/50">
+                {filteredMembers.map((member) => (
+                  <TableRow key={member.id} className="hover:bg-muted/50 cursor-pointer" 
+                    onClick={() => handleViewMember(member.id)}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
@@ -245,7 +364,10 @@ const Team: React.FC = () => {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => toast.info(`Emailing ${member.name}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEmailMember(member.email);
+                          }}
                         >
                           <Mail className="h-4 w-4" />
                           <span className="sr-only">Email</span>
@@ -254,7 +376,10 @@ const Team: React.FC = () => {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          onClick={() => toast.info(`Calling ${member.name}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCallMember(member.phone);
+                          }}
                         >
                           <Phone className="h-4 w-4" />
                           <span className="sr-only">Call</span>
@@ -266,7 +391,10 @@ const Team: React.FC = () => {
                         variant="outline"
                         size="sm"
                         className="flex items-center gap-2"
-                        onClick={() => toast.info(`View schedule for ${member.name}`)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewSchedule(member.name);
+                        }}
                       >
                         <Calendar className="h-4 w-4" />
                         <span>Schedule</span>
@@ -335,6 +463,15 @@ const Team: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
+      
+      <TeamMemberDetails 
+        member={selectedMember}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        onEmail={handleEmailMember}
+        onCall={handleCallMember}
+        onViewSchedule={handleViewSchedule}
+      />
     </Layout>
   );
 };
