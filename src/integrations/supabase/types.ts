@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      inventory_items: {
+        Row: {
+          category: string
+          current_stock: number
+          id: string
+          last_restocked: string | null
+          location: string
+          min_stock: number
+          name: string
+          sku: string
+          unit_price: number
+        }
+        Insert: {
+          category: string
+          current_stock?: number
+          id?: string
+          last_restocked?: string | null
+          location: string
+          min_stock?: number
+          name: string
+          sku: string
+          unit_price?: number
+        }
+        Update: {
+          category?: string
+          current_stock?: number
+          id?: string
+          last_restocked?: string | null
+          location?: string
+          min_stock?: number
+          name?: string
+          sku?: string
+          unit_price?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
