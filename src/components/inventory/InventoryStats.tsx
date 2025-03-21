@@ -45,6 +45,11 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({ inventoryItems }
   };
 
   const categoryStockData = getCategoryStockData();
+  const totalValue = inventoryItems.reduce(
+    (total, item) => total + (item.currentStock * item.unitPrice), 
+    0
+  );
+  const uniqueCategories = new Set(inventoryItems.map(item => item.category)).size;
 
   return (
     <div className="grid gap-6 mb-6">
@@ -61,14 +66,14 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({ inventoryItems }
         
         <DashboardCard title="Inventory Value">
           <div className="text-3xl font-bold">
-            ${inventoryItems.reduce((total, item) => total + (item.currentStock * item.unitPrice), 0).toLocaleString()}
+            ${totalValue.toLocaleString()}
           </div>
           <p className="text-sm text-muted-foreground mt-1">Total value of inventory</p>
         </DashboardCard>
         
         <DashboardCard title="Categories">
           <div className="text-3xl font-bold">
-            {new Set(inventoryItems.map(item => item.category)).size}
+            {uniqueCategories}
           </div>
           <p className="text-sm text-muted-foreground mt-1">Different item categories</p>
         </DashboardCard>

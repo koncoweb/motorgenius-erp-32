@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Plus } from "lucide-react";
@@ -20,22 +20,30 @@ import {
   filterInventoryItems, 
   InventoryItem 
 } from "@/components/inventory/inventoryUtils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchInventoryItems } from "@/services/inventoryService";
 
 const Inventory: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [stockStatusFilter, setStockStatusFilter] = useState("all");
-  const [filteredItems, setFilteredItems] = useState(mockInventoryItems);
   const [selectedItem, setSelectedItem] = useState<null | InventoryItem>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  
+  // Fetch inventory items with react-query
+  const { data: inventoryItems, isLoading, error } = useQuery({
+    queryKey: ['inventoryItems'],
+    queryFn: fetchInventoryItems,
+    initialData: mockInventoryItems, // Use mock data as fallback
+  });
   
   const handleAddItem = () => {
     toast.success("This feature will be available in the next update.");
   };
   
   const handleViewItem = (id: string) => {
-    const item = mockInventoryItems.find(item => item.id === id);
+    const item = inventoryItems.find(item => item.id === id);
     if (item) {
       setSelectedItem(item);
       setDetailsDialogOpen(true);
@@ -47,17 +55,20 @@ const Inventory: React.FC = () => {
     setDetailsDialogOpen(false);
   };
   
-  useEffect(() => {
-    const filtered = filterInventoryItems(
-      mockInventoryItems,
+  // Filter items based on user selections
+  const filteredItems = React.useMemo(() => {
+    return filterInventoryItems(
+      inventoryItems,
       searchQuery,
       categoryFilter,
       locationFilter,
       stockStatusFilter
     );
-    
-    setFilteredItems(filtered);
-  }, [searchQuery, categoryFilter, locationFilter, stockStatusFilter]);
+  }, [inventoryItems, searchQuery, categoryFilter, locationFilter, stockStatusFilter]);
+
+  if (error) {
+    toast.error("Failed to load inventory data");
+  }
 
   return (
     <Layout>
@@ -69,7 +80,7 @@ const Inventory: React.FC = () => {
         onAction={handleAddItem}
       />
       
-      <InventoryStats inventoryItems={mockInventoryItems} />
+      <InventoryStats inventoryItems={inventoryItems} />
       
       <Tabs defaultValue="all">
         <div className="flex items-center justify-between mb-4">
@@ -91,15 +102,21 @@ const Inventory: React.FC = () => {
             onStockStatusChange={setStockStatusFilter}
           />
           
-          <InventoryTable 
-            items={filteredItems} 
-            onViewItem={handleViewItem}
-            onReorderItem={handleReorderItem}
-          />
+          {isLoading ? (
+            <div className="flex justify-center p-8">
+              <p>Loading inventory data...</p>
+            </div>
+          ) : (
+            <InventoryTable 
+              items={filteredItems} 
+              onViewItem={handleViewItem}
+              onReorderItem={handleReorderItem}
+            />
+          )}
         </TabsContent>
         
         <TabsContent value="low-stock" className="animate-in">
-          <LowStockTable items={mockInventoryItems} />
+          <LowStockTable items={inventoryItems} />
         </TabsContent>
       </Tabs>
       
