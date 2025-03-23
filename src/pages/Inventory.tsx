@@ -16,12 +16,11 @@ import { InventoryStats } from "@/components/inventory/InventoryStats";
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { LowStockTable } from "@/components/inventory/LowStockTable";
 import { 
-  mockInventoryItems, 
   filterInventoryItems, 
   InventoryItem 
 } from "@/components/inventory/inventoryUtils";
 import { useQuery } from "@tanstack/react-query";
-import { fetchInventoryItems } from "@/services/inventoryService";
+import { fetchInventoryItems, getLowStockItems } from "@/services/inventoryService";
 import { AddInventoryForm } from "@/components/inventory/AddInventoryForm";
 
 const Inventory: React.FC = () => {
@@ -34,10 +33,15 @@ const Inventory: React.FC = () => {
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   
   // Fetch inventory items with react-query
-  const { data: inventoryItems, isLoading, error } = useQuery({
+  const { data: inventoryItems = [], isLoading, error } = useQuery({
     queryKey: ['inventoryItems'],
     queryFn: fetchInventoryItems,
-    initialData: mockInventoryItems, // Use mock data as fallback
+  });
+  
+  // Fetch low stock items separately
+  const { data: lowStockItems = [] } = useQuery({
+    queryKey: ['lowStockItems'],
+    queryFn: getLowStockItems,
   });
   
   const handleAddItem = () => {
@@ -118,7 +122,7 @@ const Inventory: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="low-stock" className="animate-in">
-          <LowStockTable items={inventoryItems} />
+          <LowStockTable items={lowStockItems} />
         </TabsContent>
       </Tabs>
       

@@ -20,6 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TeamMemberDetails } from "@/components/team/TeamMemberDetails";
+import { AddTeamMemberForm } from "@/components/team/AddTeamMemberForm";
 import {
   Select,
   SelectContent,
@@ -27,17 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  department: string;
-  email: string;
-  phone: string;
-  status: "available" | "busy" | "offsite" | "leave";
-  avatar?: string;
-}
+import { useQuery } from "@tanstack/react-query";
+import { fetchTeamMembers, TeamMember } from "@/services/teamService";
 
 interface Assignment {
   id: string;
@@ -50,59 +42,6 @@ interface Assignment {
   endTime: string;
   progress: number;
 }
-
-const mockTeamMembers: TeamMember[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    role: "Senior Technician",
-    department: "Motor Repair",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    status: "available",
-    avatar: undefined,
-  },
-  {
-    id: "2",
-    name: "Alice Smith",
-    role: "Electrical Engineer",
-    department: "QA & Testing",
-    email: "alice.smith@example.com",
-    phone: "+1 (555) 987-6543",
-    status: "busy",
-    avatar: undefined,
-  },
-  {
-    id: "3",
-    name: "Bob Johnson",
-    role: "Technician",
-    department: "Generator Repair",
-    email: "bob.johnson@example.com",
-    phone: "+1 (555) 456-7890",
-    status: "offsite",
-    avatar: undefined,
-  },
-  {
-    id: "4",
-    name: "Emma Wilson",
-    role: "Lead Engineer",
-    department: "Design & Development",
-    email: "emma.wilson@example.com",
-    phone: "+1 (555) 234-5678",
-    status: "available",
-    avatar: undefined,
-  },
-  {
-    id: "5",
-    name: "Mike Thomas",
-    role: "Junior Technician",
-    department: "Motor Repair",
-    email: "mike.thomas@example.com",
-    phone: "+1 (555) 345-6789",
-    status: "leave",
-    avatar: undefined,
-  },
-];
 
 const mockAssignments = [
   {
@@ -155,12 +94,41 @@ const Team: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [filteredMembers, setFilteredMembers] = useState(mockTeamMembers);
-  const [selectedMember, setSelectedMember] = useState<null | typeof mockTeamMembers[0]>(null);
+  const [selectedMember, setSelectedMember] = useState<null | TeamMember>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [addMemberDialogOpen, setAddMemberDialogOpen] = useState(false);
+  
+  const { data: teamMembers = [], isLoading } = useQuery({
+    queryKey: ['teamMembers'],
+    queryFn: fetchTeamMembers,
+  });
+  
+  const filteredMembers = React.useMemo(() => {
+    let filtered = [...teamMembers];
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        member =>
+          member.name.toLowerCase().includes(query) ||
+          member.role.toLowerCase().includes(query) ||
+          member.department.toLowerCase().includes(query)
+      );
+    }
+    
+    if (departmentFilter !== "all") {
+      filtered = filtered.filter(member => member.department === departmentFilter);
+    }
+    
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(member => member.status === statusFilter);
+    }
+    
+    return filtered;
+  }, [teamMembers, searchQuery, departmentFilter, statusFilter]);
   
   const handleAddTeamMember = () => {
-    toast.success("This feature will be available in the next update.");
+    setAddMemberDialogOpen(true);
   };
   
   const handleAddAssignment = () => {
@@ -182,32 +150,8 @@ const Team: React.FC = () => {
     }
   };
 
-  React.useEffect(() => {
-    let filtered = [...mockTeamMembers];
-    
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        member =>
-          member.name.toLowerCase().includes(query) ||
-          member.role.toLowerCase().includes(query) ||
-          member.department.toLowerCase().includes(query)
-      );
-    }
-    
-    if (departmentFilter !== "all") {
-      filtered = filtered.filter(member => member.department === departmentFilter);
-    }
-    
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(member => member.status === statusFilter);
-    }
-    
-    setFilteredMembers(filtered);
-  }, [searchQuery, departmentFilter, statusFilter]);
-  
   const handleViewMember = (id: string) => {
-    const member = mockTeamMembers.find(m => m.id === id);
+    const member = teamMembers.find(m => m.id === id);
     if (member) {
       setSelectedMember(member);
       setDetailsDialogOpen(true);
@@ -228,7 +172,7 @@ const Team: React.FC = () => {
     setDetailsDialogOpen(false);
   };
 
-  const departments = Array.from(new Set(mockTeamMembers.map(m => m.department)));
+  const departments = Array.from(new Set(teamMembers.map(m => m.department)));
 
   return (
     <Layout>
@@ -242,27 +186,27 @@ const Team: React.FC = () => {
       
       <div className="grid gap-6 mb-6 md:grid-cols-4">
         <DashboardCard title="Total Team Members">
-          <div className="text-3xl font-bold">{mockTeamMembers.length}</div>
+          <div className="text-3xl font-bold">{teamMembers.length}</div>
           <p className="text-sm text-muted-foreground mt-1">Active team members</p>
         </DashboardCard>
         
         <DashboardCard title="Available Today">
           <div className="text-3xl font-bold text-green-600">
-            {mockTeamMembers.filter(m => m.status === "available").length}
+            {teamMembers.filter(m => m.status === "available").length}
           </div>
           <p className="text-sm text-muted-foreground mt-1">Team members available</p>
         </DashboardCard>
         
         <DashboardCard title="Busy/Offsite">
           <div className="text-3xl font-bold text-yellow-600">
-            {mockTeamMembers.filter(m => m.status === "busy" || m.status === "offsite").length}
+            {teamMembers.filter(m => m.status === "busy" || m.status === "offsite").length}
           </div>
           <p className="text-sm text-muted-foreground mt-1">Currently on assignment</p>
         </DashboardCard>
         
         <DashboardCard title="On Leave">
           <div className="text-3xl font-bold text-gray-600">
-            {mockTeamMembers.filter(m => m.status === "leave").length}
+            {teamMembers.filter(m => m.status === "leave").length}
           </div>
           <p className="text-sm text-muted-foreground mt-1">Team members on leave</p>
         </DashboardCard>
@@ -329,81 +273,87 @@ const Team: React.FC = () => {
           </div>
         
           <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMembers.map((member) => (
-                  <TableRow key={member.id} className="hover:bg-muted/50 cursor-pointer" 
-                    onClick={() => handleViewMember(member.id)}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage src={member.avatar} alt={member.name} />
-                          <AvatarFallback>
-                            {member.name.split(" ").map(n => n[0]).join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="font-medium">{member.name}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{member.role}</TableCell>
-                    <TableCell>{member.department}</TableCell>
-                    <TableCell>{getStatusBadge(member.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEmailMember(member.email);
-                          }}
-                        >
-                          <Mail className="h-4 w-4" />
-                          <span className="sr-only">Email</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCallMember(member.phone);
-                          }}
-                        >
-                          <Phone className="h-4 w-4" />
-                          <span className="sr-only">Call</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleViewSchedule(member.name);
-                        }}
-                      >
-                        <Calendar className="h-4 w-4" />
-                        <span>Schedule</span>
-                      </Button>
-                    </TableCell>
+            {isLoading ? (
+              <div className="flex justify-center p-8">
+                <p>Loading team data...</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Department</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredMembers.map((member) => (
+                    <TableRow key={member.id} className="hover:bg-muted/50 cursor-pointer" 
+                      onClick={() => handleViewMember(member.id)}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={member.avatar} alt={member.name} />
+                            <AvatarFallback>
+                              {member.name.split(" ").map(n => n[0]).join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="font-medium">{member.name}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{member.role}</TableCell>
+                      <TableCell>{member.department}</TableCell>
+                      <TableCell>{getStatusBadge(member.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEmailMember(member.email);
+                            }}
+                          >
+                            <Mail className="h-4 w-4" />
+                            <span className="sr-only">Email</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCallMember(member.phone);
+                            }}
+                          >
+                            <Phone className="h-4 w-4" />
+                            <span className="sr-only">Call</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewSchedule(member.name);
+                          }}
+                        >
+                          <Calendar className="h-4 w-4" />
+                          <span>Schedule</span>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </div>
         </TabsContent>
         
@@ -471,6 +421,11 @@ const Team: React.FC = () => {
         onEmail={handleEmailMember}
         onCall={handleCallMember}
         onViewSchedule={handleViewSchedule}
+      />
+      
+      <AddTeamMemberForm
+        open={addMemberDialogOpen}
+        onOpenChange={setAddMemberDialogOpen}
       />
     </Layout>
   );
