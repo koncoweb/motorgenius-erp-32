@@ -39,14 +39,14 @@ export default function Login() {
     const checkSupabaseConnection = async () => {
       try {
         console.log("Checking Supabase connection...");
-        const { data, error } = await supabase.from('profiles').select('*').limit(1);
+        const { data, error } = await supabase.from('customers').select('*').limit(1);
         
         if (error) {
           console.error("Supabase connection error:", error);
           setSupabaseStatus(`Error: ${error.message}`);
           setMaintenanceMode(true);
         } else {
-          console.log("Supabase connection successful, found profiles:", data);
+          console.log("Supabase connection successful, found data:", data);
           setSupabaseStatus("Connected");
         }
       } catch (err) {

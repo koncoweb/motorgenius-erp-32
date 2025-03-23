@@ -81,6 +81,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          department: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       project: {
         Row: {
           assigned_to: string | null
