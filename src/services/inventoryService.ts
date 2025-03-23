@@ -18,7 +18,7 @@ const mapInventoryItem = (item: any): InventoryItem => ({
 export async function fetchInventoryItems(): Promise<InventoryItem[]> {
   try {
     const { data, error } = await supabase
-      .from('inventory_items')
+      .from('inventory')
       .select('*');
     
     if (error) {
@@ -37,7 +37,7 @@ export async function fetchInventoryItems(): Promise<InventoryItem[]> {
 export async function getLowStockItems(): Promise<InventoryItem[]> {
   try {
     const { data, error } = await supabase
-      .from('inventory_items')
+      .from('inventory')
       .select('*')
       .lt('current_stock', 'min_stock');
     
@@ -70,7 +70,7 @@ export async function addInventoryItem(item: Omit<InventoryItem, 'id'>): Promise
     };
 
     const { data, error } = await supabase
-      .from('inventory_items')
+      .from('inventory')
       .insert(dbItem)
       .select('*')
       .single();

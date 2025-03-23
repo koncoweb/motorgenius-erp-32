@@ -15,7 +15,7 @@ export interface Customer {
 
 // Helper function to convert from Supabase format to our app format
 const mapCustomer = (item: any): Customer => ({
-  id: item.id.toString(),
+  id: item.id.toString(), // Convert to string to maintain consistent API
   name: item.name || '',
   company: item.company || '',
   email: item.email || '',
@@ -78,10 +78,13 @@ export async function addCustomer(customer: Omit<Customer, 'id'>): Promise<Custo
 
 export async function deleteCustomer(id: string): Promise<boolean> {
   try {
+    // Convert string id to number since the database expects a number type
+    const numericId = parseInt(id, 10);
+    
     const { error } = await supabase
       .from('customers')
       .delete()
-      .eq('id', id);
+      .eq('id', numericId);
     
     if (error) {
       console.error('Error deleting customer:', error);
