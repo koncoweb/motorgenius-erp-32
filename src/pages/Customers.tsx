@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CustomerTable } from "@/components/customers/CustomerTable";
@@ -23,62 +23,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const mockCustomers = [
-  {
-    id: "1",
-    name: "John Williams",
-    company: "Acme Industries",
-    email: "jwilliams@acme.com",
-    phone: "+1 (555) 123-4567",
-    totalOrders: 12,
-    totalSpent: 45800,
-    lastOrder: "2023-07-28",
-  },
-  {
-    id: "2",
-    name: "Sarah Chen",
-    company: "TechCorp LLC",
-    email: "schen@techcorp.com",
-    phone: "+1 (555) 987-6543",
-    totalOrders: 8,
-    totalSpent: 28500,
-    lastOrder: "2023-08-05",
-  },
-  {
-    id: "3",
-    name: "Robert Martinez",
-    company: "Global Enterprises",
-    email: "rmartinez@global.com",
-    phone: "+1 (555) 456-7890",
-    totalOrders: 5,
-    totalSpent: 18200,
-    lastOrder: "2023-08-12",
-  },
-  {
-    id: "4",
-    name: "Emma Wilson",
-    company: "City Power Co",
-    email: "ewilson@citypower.com",
-    phone: "+1 (555) 234-5678",
-    totalOrders: 15,
-    totalSpent: 67300,
-    lastOrder: "2023-08-03",
-  },
-  {
-    id: "5",
-    name: "David Johnson",
-    company: "United Manufacturing",
-    email: "djohnson@united.com",
-    phone: "+1 (555) 345-6789",
-    totalOrders: 9,
-    totalSpent: 32600,
-    lastOrder: "2023-07-22",
-  },
-];
+import { fetchCustomers, addCustomer, deleteCustomer, Customer } from "@/services/customerService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Customers: React.FC = () => {
-  const [filteredCustomers, setFilteredCustomers] = useState(mockCustomers);
+  const queryClient = useQueryClient();
+  
+  // Fetch customers using React Query
+  const { data: customers = [], isLoading } = useQuery({
+    queryKey: ['customers'],
+    queryFn: fetchCustomers
+  });
+  
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -88,7 +45,7 @@ const Customers: React.FC = () => {
     email: "",
     phone: "",
   });
-  const [viewCustomerDetails, setViewCustomerDetails] = useState<typeof mockCustomers[0] | null>(null);
+  const [viewCustomerDetails, setViewCustomerDetails] = useState<Customer | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   const handleCreateCustomer = () => {
@@ -96,7 +53,7 @@ const Customers: React.FC = () => {
   };
 
   const handleViewCustomer = (id: string) => {
-    const customer = mockCustomers.find(c => c.id === id);
+    const customer = customers.find(c => c.id === id);
     if (customer) {
       setViewCustomerDetails(customer);
       setIsViewDialogOpen(true);
@@ -109,9 +66,20 @@ const Customers: React.FC = () => {
     toast.info(`Editing customer ${id}`);
   };
 
-  const handleDeleteCustomer = (id: string) => {
-    setFilteredCustomers(filteredCustomers.filter(customer => customer.id !== id));
-    toast.success(`Customer ${id} deleted successfully`);
+  const handleDeleteCustomer = async (id: string) => {
+    try {
+      const success = await deleteCustomer(id);
+      if (success) {
+        toast.success(`Customer deleted successfully`);
+        // Refresh the customer list
+        queryClient.invalidateQueries({ queryKey: ['customers'] });
+      } else {
+        toast.error("Failed to delete customer");
+      }
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+      toast.error("An error occurred while deleting the customer");
+    }
   };
 
   const handleEmailCustomer = (email: string) => {
@@ -122,22 +90,42 @@ const Customers: React.FC = () => {
     toast.info(`Calling ${phone}`);
   };
 
-  const handleSaveCustomer = () => {
-    // In a real app, this would be a database operation
-    toast.success("Customer created successfully");
-    setIsCreateDialogOpen(false);
-    // Reset form
-    setNewCustomer({
-      name: "",
-      company: "",
-      email: "",
-      phone: "",
-    });
+  const handleSaveCustomer = async () => {
+    try {
+      // Create a customer object with default values for the required fields
+      const customerToAdd = {
+        ...newCustomer,
+        totalOrders: 0,
+        totalSpent: 0,
+        lastOrder: new Date().toISOString().split('T')[0]
+      };
+      
+      const customer = await addCustomer(customerToAdd);
+      
+      if (customer) {
+        toast.success("Customer created successfully");
+        // Refresh the customer list
+        queryClient.invalidateQueries({ queryKey: ['customers'] });
+        // Reset form and close dialog
+        setNewCustomer({
+          name: "",
+          company: "",
+          email: "",
+          phone: "",
+        });
+        setIsCreateDialogOpen(false);
+      } else {
+        toast.error("Failed to create customer");
+      }
+    } catch (error) {
+      console.error("Error creating customer:", error);
+      toast.error("An error occurred while creating the customer");
+    }
   };
 
-  // Filter and sort customers
-  React.useEffect(() => {
-    let filtered = [...mockCustomers];
+  // Filter and sort customers whenever the data, search query, or sort option changes
+  useEffect(() => {
+    let filtered = [...customers];
     
     // Apply search filter
     if (searchQuery) {
@@ -169,7 +157,7 @@ const Customers: React.FC = () => {
     });
     
     setFilteredCustomers(filtered);
-  }, [searchQuery, sortBy]);
+  }, [customers, searchQuery, sortBy]);
 
   return (
     <Layout>
@@ -213,16 +201,20 @@ const Customers: React.FC = () => {
         </div>
       </div>
 
-      <div className="rounded-md border animate-in">
-        <CustomerTable
-          customers={filteredCustomers}
-          onView={handleViewCustomer}
-          onEdit={handleEditCustomer}
-          onDelete={handleDeleteCustomer}
-          onEmail={handleEmailCustomer}
-          onCall={handleCallCustomer}
-        />
-      </div>
+      {isLoading ? (
+        <div className="text-center py-10">Loading customers...</div>
+      ) : (
+        <div className="rounded-md border animate-in">
+          <CustomerTable
+            customers={filteredCustomers}
+            onView={handleViewCustomer}
+            onEdit={handleEditCustomer}
+            onDelete={handleDeleteCustomer}
+            onEmail={handleEmailCustomer}
+            onCall={handleCallCustomer}
+          />
+        </div>
+      )}
       
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent>

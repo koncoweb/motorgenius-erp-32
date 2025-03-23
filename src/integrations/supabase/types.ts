@@ -9,7 +9,43 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      inventory_items: {
+      customers: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string | null
+          id: number
+          last_order: string | null
+          name: string | null
+          phone: string | null
+          total_orders: number | null
+          total_spent: number | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: number
+          last_order?: string | null
+          name?: string | null
+          phone?: string | null
+          total_orders?: number | null
+          total_spent?: number | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: number
+          last_order?: string | null
+          name?: string | null
+          phone?: string | null
+          total_orders?: number | null
+          total_spent?: number | null
+        }
+        Relationships: []
+      }
+      inventory: {
         Row: {
           category: string
           current_stock: number
@@ -78,6 +114,75 @@ export type Database = {
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      project: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          customer: string | null
+          due_date: string | null
+          id: number
+          status: string | null
+          type: string | null
+          work_order_number: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          customer?: string | null
+          due_date?: string | null
+          id?: number
+          status?: string | null
+          type?: string | null
+          work_order_number?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          customer?: string | null
+          due_date?: string | null
+          id?: number
+          status?: string | null
+          type?: string | null
+          work_order_number?: string | null
+        }
+        Relationships: []
+      }
+      team: {
+        Row: {
+          avatar: string | null
+          created_at: string
+          department: string | null
+          email: string | null
+          id: number
+          name: string | null
+          phone: string | null
+          role: string | null
+          status: string | null
+        }
+        Insert: {
+          avatar?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          id?: number
+          name?: string | null
+          phone?: string | null
+          role?: string | null
+          status?: string | null
+        }
+        Update: {
+          avatar?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          id?: number
+          name?: string | null
+          phone?: string | null
+          role?: string | null
+          status?: string | null
         }
         Relationships: []
       }
