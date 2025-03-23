@@ -36,14 +36,28 @@ export async function fetchInventoryItems(): Promise<InventoryItem[]> {
 
 export async function getLowStockItems(): Promise<InventoryItem[]> {
   try {
+    // Fixed query: use a where clause comparing current_stock and min_stock columns
     const { data, error } = await supabase
       .from('inventory')
       .select('*')
-      .lt('current_stock', 'min_stock');
+      .lt('current_stock', supabase.rpc('min_stock_fn', { row_id: 'id' }));
     
     if (error) {
       console.error('Error fetching low stock items:', error);
-      throw error;
+      
+      // Fallback to client-side filtering if server-side filtering fails
+      const { data: allItems, error: allItemsError } = await supabase
+        .from('inventory')
+        .select('*');
+        
+      if (allItemsError) {
+        console.error('Error fetching all inventory items:', allItemsError);
+        return [];
+      }
+      
+      // Filter low stock items on the client side
+      const lowStockItems = allItems.filter(item => item.current_stock < item.min_stock);
+      return lowStockItems.map(mapInventoryItem);
     }
     
     // Map the data from snake_case (database) to camelCase (frontend)
@@ -69,6 +83,8 @@ export async function addInventoryItem(item: Omit<InventoryItem, 'id'>): Promise
       unit_price: item.unitPrice
     };
 
+    console.log('Adding inventory item:', dbItem);
+
     const { data, error } = await supabase
       .from('inventory')
       .insert(dbItem)
@@ -80,9 +96,30 @@ export async function addInventoryItem(item: Omit<InventoryItem, 'id'>): Promise
       throw error;
     }
     
+    console.log('Successfully added inventory item:', data);
     return mapInventoryItem(data);
   } catch (error) {
     console.error('Failed to add inventory item:', error);
     return null;
+  }
+}
+
+// Function to update inventory item stock
+export async function updateInventoryItemStock(id: string, newStock: number): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('inventory')
+      .update({ current_stock: newStock, last_restocked: new Date().toISOString() })
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error updating inventory item stock:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to update inventory item stock:', error);
+    return false;
   }
 }
