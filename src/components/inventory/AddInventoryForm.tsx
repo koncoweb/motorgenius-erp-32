@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,15 +25,15 @@ import { addInventoryItem } from "@/services/inventoryService";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-// Schema validasi form
+// Form validation schema
 const formSchema = z.object({
-  sku: z.string().min(3, "SKU harus minimal 3 karakter"),
-  name: z.string().min(3, "Nama harus minimal 3 karakter"),
-  category: z.string().min(1, "Kategori harus dipilih"),
-  currentStock: z.coerce.number().int().min(0, "Stok tidak boleh negatif"),
-  minStock: z.coerce.number().int().min(0, "Stok minimal tidak boleh negatif"),
-  location: z.string().min(1, "Lokasi harus diisi"),
-  unitPrice: z.coerce.number().min(0, "Harga tidak boleh negatif"),
+  sku: z.string().min(3, "SKU must be at least 3 characters"),
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  category: z.string().min(1, "Category must be selected"),
+  currentStock: z.coerce.number().int().min(0, "Stock cannot be negative"),
+  minStock: z.coerce.number().int().min(0, "Minimum stock cannot be negative"),
+  location: z.string().min(1, "Location must be specified"),
+  unitPrice: z.coerce.number().min(0, "Price cannot be negative"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -66,7 +67,7 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
 
   const onSubmit = async (values: FormValues) => {
     try {
-      // Fix: Ensure all required properties are included and are non-optional
+      // Ensure all required properties are included and are non-optional
       const item = await addInventoryItem({
         sku: values.sku,
         name: values.name,
@@ -79,15 +80,15 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
       });
       
       if (item) {
-        toast.success(`Item ${values.name} berhasil ditambahkan`);
-        // Invalidate queries untuk memperbarui data
+        toast.success(`Item ${values.name} added successfully`);
+        // Invalidate queries to update data
         queryClient.invalidateQueries({ queryKey: ['inventoryItems'] });
-        // Reset form dan tutup dialog
+        // Reset form and close dialog
         form.reset();
         onOpenChange(false);
       }
     } catch (error) {
-      toast.error("Gagal menambahkan item");
+      toast.error("Failed to add item");
       console.error(error);
     }
   };
@@ -96,7 +97,7 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Tambah Item Inventaris Baru</DialogTitle>
+          <DialogTitle>Add New Inventory Item</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
@@ -121,7 +122,7 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama Item</FormLabel>
+                    <FormLabel>Item Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Electric Motor 5kW" {...field} />
                     </FormControl>
@@ -137,14 +138,14 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kategori</FormLabel>
+                    <FormLabel>Category</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih kategori" />
+                          <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -165,14 +166,14 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Lokasi</FormLabel>
+                    <FormLabel>Location</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih lokasi" />
+                          <SelectValue placeholder="Select location" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -195,7 +196,7 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
                 name="currentStock"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stok Saat Ini</FormLabel>
+                    <FormLabel>Current Stock</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -209,7 +210,7 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
                 name="minStock"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stok Minimal</FormLabel>
+                    <FormLabel>Minimum Stock</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -223,7 +224,7 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
                 name="unitPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Harga Satuan</FormLabel>
+                    <FormLabel>Unit Price</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -239,9 +240,9 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
               >
-                Batal
+                Cancel
               </Button>
-              <Button type="submit">Simpan</Button>
+              <Button type="submit">Save</Button>
             </DialogFooter>
           </form>
         </Form>

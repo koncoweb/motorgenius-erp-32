@@ -54,7 +54,7 @@ export async function getLowStockItems(): Promise<InventoryItem[]> {
   }
 }
 
-// Fungsi baru untuk menambahkan item inventaris
+// Function to add inventory item with proper type checking
 export async function addInventoryItem(item: Omit<InventoryItem, 'id'>): Promise<InventoryItem | null> {
   try {
     // Convert from camelCase (frontend) to snake_case (database)
