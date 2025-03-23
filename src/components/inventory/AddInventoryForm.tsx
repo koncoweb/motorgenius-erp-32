@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -67,9 +66,15 @@ export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({
 
   const onSubmit = async (values: FormValues) => {
     try {
-      // Tambahkan tanggal untuk lastRestocked
+      // Fix: Ensure all required properties are included and are non-optional
       const item = await addInventoryItem({
-        ...values,
+        sku: values.sku,
+        name: values.name,
+        category: values.category,
+        currentStock: values.currentStock,
+        minStock: values.minStock,
+        location: values.location,
+        unitPrice: values.unitPrice,
         lastRestocked: new Date().toISOString(),
       });
       
