@@ -52,7 +52,8 @@ export async function addTeamMember(member: Omit<TeamMember, 'id'>): Promise<Tea
       email: member.email,
       phone: member.phone,
       status: member.status,
-      avatar: member.avatar
+      // Remove avatar if it's undefined or an object (not a string)
+      avatar: typeof member.avatar === 'string' ? member.avatar : null
     };
 
     console.log('Adding team member with data:', dbMember);

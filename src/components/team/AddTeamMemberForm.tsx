@@ -81,6 +81,8 @@ export const AddTeamMemberForm: React.FC<AddTeamMemberFormProps> = ({
         // Reset form and close dialog
         form.reset();
         onOpenChange(false);
+      } else {
+        toast.error("Failed to add team member");
       }
     } catch (error) {
       toast.error("Failed to add team member");
