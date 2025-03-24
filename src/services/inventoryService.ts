@@ -36,11 +36,11 @@ export async function fetchInventoryItems(): Promise<InventoryItem[]> {
 
 export async function getLowStockItems(): Promise<InventoryItem[]> {
   try {
-    // Fixed query: use a where clause comparing current_stock and min_stock columns
+    // Query items where current_stock is less than min_stock
     const { data, error } = await supabase
       .from('inventory')
       .select('*')
-      .lt('current_stock', supabase.rpc('min_stock_fn', { row_id: 'id' }));
+      .filter('current_stock', 'lt', supabase.rpc('min_stock_fn', { row_id: 'id' }));
     
     if (error) {
       console.error('Error fetching low stock items:', error);

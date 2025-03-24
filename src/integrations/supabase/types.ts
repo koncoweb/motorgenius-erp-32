@@ -197,6 +197,12 @@ export type Database = {
         }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      min_stock_fn: {
+        Args: {
+          row_id: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       user_role: "admin" | "employee"
