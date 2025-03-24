@@ -9,6 +9,10 @@ import Projects from "./pages/Projects";
 import Customers from "./pages/Customers";
 import Inventory from "./pages/Inventory";
 import Team from "./pages/Team";
+import Scheduling from "./pages/Scheduling";
+import Finance from "./pages/Finance";
+import QualityControl from "./pages/QualityControl";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -39,6 +43,12 @@ const App = () => (
             <Route path="/customers" element={<Customers />} />
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/team" element={<Team />} />
+            
+            {/* Additional routes */}
+            <Route path="/scheduling" element={<Scheduling />} />
+            <Route path="/finance" element={<Finance />} />
+            <Route path="/quality" element={<QualityControl />} />
+            <Route path="/analytics" element={<Analytics />} />
             
             {/* Redirect root to dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" />} />
