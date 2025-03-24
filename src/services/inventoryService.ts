@@ -123,3 +123,23 @@ export async function updateInventoryItemStock(id: string, newStock: number): Pr
     return false;
   }
 }
+
+// Function to delete inventory item
+export async function deleteInventoryItem(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('inventory')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting inventory item:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to delete inventory item:', error);
+    return false;
+  }
+}

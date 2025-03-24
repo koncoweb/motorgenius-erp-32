@@ -52,6 +52,8 @@ export async function addWorkOrder(workOrder: Omit<WorkOrder, 'id'>): Promise<Wo
       due_date: workOrder.dueDate
     };
 
+    console.log('Adding work order with data:', dbWorkOrder);
+
     const { data, error } = await supabase
       .from('project')
       .insert(dbWorkOrder)
@@ -63,9 +65,48 @@ export async function addWorkOrder(workOrder: Omit<WorkOrder, 'id'>): Promise<Wo
       throw error;
     }
     
+    console.log('Successfully added work order:', data);
     return mapWorkOrder(data);
   } catch (error) {
     console.error('Failed to add work order:', error);
     return null;
+  }
+}
+
+export async function updateWorkOrderStatus(id: string, status: WorkOrder['status']): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('project')
+      .update({ status })
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error updating work order status:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to update work order status:', error);
+    return false;
+  }
+}
+
+export async function deleteWorkOrder(id: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('project')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting work order:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to delete work order:', error);
+    return false;
   }
 }

@@ -10,20 +10,18 @@ export interface Customer {
   totalOrders: number;
   totalSpent: number;
   lastOrder: string;
-  avatar?: string;
 }
 
 // Helper function to convert from Supabase format to our app format
 const mapCustomer = (item: any): Customer => ({
-  id: item.id.toString(), // Convert to string to maintain consistent API
+  id: item.id.toString(),
   name: item.name || '',
   company: item.company || '',
   email: item.email || '',
   phone: item.phone || '',
   totalOrders: item.total_orders || 0,
   totalSpent: item.total_spent || 0,
-  lastOrder: item.last_order || '',
-  avatar: item.avatar || undefined
+  lastOrder: item.last_order || new Date().toISOString().split('T')[0]
 });
 
 export async function fetchCustomers(): Promise<Customer[]> {
@@ -37,7 +35,6 @@ export async function fetchCustomers(): Promise<Customer[]> {
       throw error;
     }
     
-    // Map the data from snake_case (database) to camelCase (frontend)
     return (data || []).map(mapCustomer);
   } catch (error) {
     console.error('Failed to fetch customers:', error);
@@ -53,10 +50,12 @@ export async function addCustomer(customer: Omit<Customer, 'id'>): Promise<Custo
       company: customer.company,
       email: customer.email,
       phone: customer.phone,
-      total_orders: customer.totalOrders || 0,
-      total_spent: customer.totalSpent || 0,
-      last_order: customer.lastOrder || new Date().toISOString().split('T')[0]
+      total_orders: customer.totalOrders,
+      total_spent: customer.totalSpent,
+      last_order: customer.lastOrder
     };
+
+    console.log('Adding customer with data:', dbCustomer);
 
     const { data, error } = await supabase
       .from('customers')
@@ -69,6 +68,7 @@ export async function addCustomer(customer: Omit<Customer, 'id'>): Promise<Custo
       throw error;
     }
     
+    console.log('Successfully added customer:', data);
     return mapCustomer(data);
   } catch (error) {
     console.error('Failed to add customer:', error);
@@ -78,17 +78,14 @@ export async function addCustomer(customer: Omit<Customer, 'id'>): Promise<Custo
 
 export async function deleteCustomer(id: string): Promise<boolean> {
   try {
-    // Convert string id to number since the database expects a number type
-    const numericId = parseInt(id, 10);
-    
     const { error } = await supabase
       .from('customers')
       .delete()
-      .eq('id', numericId);
+      .eq('id', id);
     
     if (error) {
       console.error('Error deleting customer:', error);
-      throw error;
+      return false;
     }
     
     return true;
