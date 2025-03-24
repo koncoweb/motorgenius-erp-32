@@ -55,6 +55,8 @@ export async function addTeamMember(member: Omit<TeamMember, 'id'>): Promise<Tea
       avatar: member.avatar
     };
 
+    console.log('Adding team member with data:', dbMember);
+
     const { data, error } = await supabase
       .from('team')
       .insert(dbMember)
@@ -66,9 +68,54 @@ export async function addTeamMember(member: Omit<TeamMember, 'id'>): Promise<Tea
       throw error;
     }
     
+    console.log('Successfully added team member:', data);
     return mapTeamMember(data);
   } catch (error) {
     console.error('Failed to add team member:', error);
     return null;
+  }
+}
+
+export async function updateTeamMemberStatus(id: string, status: TeamMember['status']): Promise<boolean> {
+  try {
+    // Convert string id to number since the database expects a number type
+    const numericId = parseInt(id, 10);
+    
+    const { error } = await supabase
+      .from('team')
+      .update({ status })
+      .eq('id', numericId);
+    
+    if (error) {
+      console.error('Error updating team member status:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to update team member status:', error);
+    return false;
+  }
+}
+
+export async function deleteTeamMember(id: string): Promise<boolean> {
+  try {
+    // Convert string id to number since the database expects a number type
+    const numericId = parseInt(id, 10);
+    
+    const { error } = await supabase
+      .from('team')
+      .delete()
+      .eq('id', numericId);
+    
+    if (error) {
+      console.error('Error deleting team member:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to delete team member:', error);
+    return false;
   }
 }

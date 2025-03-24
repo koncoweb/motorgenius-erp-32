@@ -75,10 +75,13 @@ export async function addWorkOrder(workOrder: Omit<WorkOrder, 'id'>): Promise<Wo
 
 export async function updateWorkOrderStatus(id: string, status: WorkOrder['status']): Promise<boolean> {
   try {
+    // Convert string id to number since the database expects a number type
+    const numericId = parseInt(id, 10);
+    
     const { error } = await supabase
       .from('project')
       .update({ status })
-      .eq('id', id);
+      .eq('id', numericId);
     
     if (error) {
       console.error('Error updating work order status:', error);
@@ -94,10 +97,13 @@ export async function updateWorkOrderStatus(id: string, status: WorkOrder['statu
 
 export async function deleteWorkOrder(id: string): Promise<boolean> {
   try {
+    // Convert string id to number since the database expects a number type
+    const numericId = parseInt(id, 10);
+    
     const { error } = await supabase
       .from('project')
       .delete()
-      .eq('id', id);
+      .eq('id', numericId);
     
     if (error) {
       console.error('Error deleting work order:', error);
