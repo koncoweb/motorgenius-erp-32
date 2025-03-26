@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
   DropdownMenuLabel,
-  DropdownMenuFooter,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { formatDate } from "@/lib/utils";
@@ -106,11 +105,11 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
           </>
         )}
         
-        <DropdownMenuFooter className="text-xs text-center py-2 text-muted-foreground">
+        <div className="text-xs text-center py-2 text-muted-foreground border-t">
           <Button variant="link" size="sm" onClick={() => navigate("/notifications")} className="h-auto p-0">
             View all notifications
           </Button>
-        </DropdownMenuFooter>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

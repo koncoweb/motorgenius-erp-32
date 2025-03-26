@@ -175,7 +175,7 @@ export async function updateCustomer(id: string, customer: Partial<Customer>): P
 
 export interface CustomerDocument {
   id: string;
-  customer_id: string;
+  customer_id: string; // Mengubah dari number menjadi string untuk menyesuaikan dengan interface
   file_name: string;
   file_path: string;
   uploaded_at: string;
@@ -218,7 +218,11 @@ export async function uploadContractDocument(
       throw error;
     }
     
-    return data as CustomerDocument;
+    // Konversi customer_id menjadi string sebelum dikembalikan ke aplikasi
+    return {
+      ...data,
+      customer_id: data.customer_id.toString()
+    } as CustomerDocument;
   } catch (error) {
     console.error('Failed to upload contract document:', error);
     return null;
@@ -239,7 +243,11 @@ export async function getCustomerDocuments(customerId: string): Promise<Customer
       throw error;
     }
     
-    return data as CustomerDocument[] || [];
+    // Konversi semua customer_id menjadi string
+    return (data || []).map(doc => ({
+      ...doc,
+      customer_id: doc.customer_id.toString()
+    })) as CustomerDocument[];
   } catch (error) {
     console.error('Failed to fetch customer documents:', error);
     return [];
