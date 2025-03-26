@@ -11,6 +11,8 @@ export interface QualityCheck {
   notes: string | null;
   actionItems: string | null;
   createdAt: string;
+  checklistCompleted?: boolean;
+  issues?: string | null;
 }
 
 export interface QualityStandard {
@@ -41,7 +43,9 @@ const mapQualityCheck = (item: any): QualityCheck => ({
   rating: item.rating,
   notes: item.notes,
   actionItems: item.action_items,
-  createdAt: item.created_at
+  createdAt: item.created_at,
+  checklistCompleted: item.checklist_completed || false,
+  issues: item.issues || null
 });
 
 const mapQualityStandard = (item: any): QualityStandard => ({
@@ -143,7 +147,7 @@ export async function fetchQualityCheckById(id: string): Promise<QualityCheck | 
     return null;
   }
 
-  return data;
+  return mapQualityCheck(data);
 }
 
 export async function addQualityCheck(
@@ -159,7 +163,9 @@ export async function addQualityCheck(
       status: qualityCheck.status,
       rating: qualityCheck.rating,
       notes: qualityCheck.notes,
-      action_items: qualityCheck.actionItems
+      action_items: qualityCheck.actionItems,
+      checklist_completed: qualityCheck.checklistCompleted,
+      issues: qualityCheck.issues
     };
 
     console.log('Adding quality check with data:', dbQualityCheck);

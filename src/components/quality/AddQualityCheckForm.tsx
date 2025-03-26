@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,7 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
-import { QualityCheck, QualityCheckResult, QualityStandard, addQualityCheck, fetchQualityStandards } from "@/services/qualityService";
+import { 
+  QualityCheck, 
+  QualityCheckResult, 
+  QualityStandard, 
+  addQualityCheck, 
+  fetchQualityStandards,
+  fetchQualityCheckById
+} from "@/services/qualityService";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fetchWorkOrders } from "@/services/workOrderService";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,11 +23,15 @@ import { Badge } from "@/components/ui/badge";
 interface AddQualityCheckFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  qualityCheckId?: string | null;
+  onSuccess?: () => void;
 }
 
 export const AddQualityCheckForm: React.FC<AddQualityCheckFormProps> = ({
   open,
-  onOpenChange
+  onOpenChange,
+  qualityCheckId = null,
+  onSuccess
 }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -31,32 +41,47 @@ export const AddQualityCheckForm: React.FC<AddQualityCheckFormProps> = ({
     [key: string]: { passed: boolean; comments: string }
   }>({});
   const [loading, setLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<Omit<QualityCheck, 'id' | 'createdAt'>>();
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm<Omit<QualityCheck, 'id' | 'createdAt'>>();
 
   useEffect(() => {
     if (open) {
-      // Fetch work orders
+      setIsEditMode(!!qualityCheckId);
+      
       fetchWorkOrders().then(data => setWorkOrders(data));
       
-      // Fetch quality standards
       fetchQualityStandards().then(data => {
         setStandards(data);
-        // Initialize the standard results object
         const initialResults: any = {};
         data.forEach(standard => {
           initialResults[standard.id] = { passed: false, comments: '' };
         });
         setStandardResults(initialResults);
       });
+      
+      if (qualityCheckId) {
+        fetchQualityCheckById(qualityCheckId).then(data => {
+          if (data) {
+            setValue('inspectionDate', data.inspectionDate);
+            setValue('workOrderId', data.workOrderId);
+            setValue('inspector', data.inspector);
+            setValue('status', data.status);
+            setValue('rating', data.rating);
+            setValue('notes', data.notes);
+            setValue('actionItems', data.actionItems);
+            setValue('checklistCompleted', data.checklistCompleted);
+            setValue('issues', data.issues);
+          }
+        });
+      }
     }
-  }, [open]);
+  }, [open, qualityCheckId, setValue]);
 
   const onSubmit = async (data: Omit<QualityCheck, 'id' | 'createdAt'>) => {
     setLoading(true);
     
     try {
-      // Convert the standard results to the format the API expects
       const checkResults: Omit<QualityCheckResult, 'id' | 'qualityCheckId'>[] = 
         Object.entries(standardResults).map(([standardId, result]) => ({
           standardId,
@@ -72,19 +97,15 @@ export const AddQualityCheckForm: React.FC<AddQualityCheckFormProps> = ({
           description: "The quality check has been created successfully.",
         });
         
-        // Reset the form
         reset();
-        // Reset the standard results
         const resetResults: any = {};
         standards.forEach(standard => {
           resetResults[standard.id] = { passed: false, comments: '' };
         });
         setStandardResults(resetResults);
         
-        // Close the dialog
         onOpenChange(false);
         
-        // Invalidate the quality checks query
         queryClient.invalidateQueries({ queryKey: ['qualityChecks'] });
       } else {
         toast({
@@ -119,7 +140,7 @@ export const AddQualityCheckForm: React.FC<AddQualityCheckFormProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Quality Check</DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit" : "Create New"} Quality Check</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -270,7 +291,7 @@ export const AddQualityCheckForm: React.FC<AddQualityCheckFormProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create Quality Check"}
+              {loading ? (isEditMode ? "Updating..." : "Creating...") : (isEditMode ? "Update" : "Create Quality Check")}
             </Button>
           </div>
         </form>
@@ -278,3 +299,4 @@ export const AddQualityCheckForm: React.FC<AddQualityCheckFormProps> = ({
     </Dialog>
   );
 };
+
