@@ -7,6 +7,8 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { Briefcase, Users, Package, Clock, DollarSign } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FinancialSummaryCards } from "@/components/finance/FinancialSummaryCards";
+import { formatRupiah } from "@/lib/utils";
 import { 
   LineChart, 
   Line, 
@@ -20,14 +22,15 @@ import {
   Bar 
 } from "recharts";
 
+// Updated data to use Rupiah
 const salesData = [
-  { name: "Jan", total: 4200 },
-  { name: "Feb", total: 5800 },
-  { name: "Mar", total: 7500 },
-  { name: "Apr", total: 6800 },
-  { name: "May", total: 9100 },
-  { name: "Jun", total: 8600 },
-  { name: "Jul", total: 10200 },
+  { name: "Jan", total: 42000000 },
+  { name: "Feb", total: 58000000 },
+  { name: "Mar", total: 75000000 },
+  { name: "Apr", total: 68000000 },
+  { name: "May", total: 91000000 },
+  { name: "Jun", total: 86000000 },
+  { name: "Jul", total: 102000000 },
 ];
 
 const workOrderData = [
@@ -83,40 +86,53 @@ const recentActivities = [
   },
 ];
 
+// Mock financial summary data for the cards
+const mockFinancialSummary = {
+  month: new Date().toISOString(),
+  total_revenue: 125000000,
+  total_expenses: 78500000,
+  net_income: 46500000
+};
+
 const Dashboard: React.FC = () => {
   return (
     <Layout>
       <PageHeader
         title="Dashboard"
-        description="Welcome to MotorGenius ERP. Here's an overview of your business."
+        description="Selamat datang di MotorGenius ERP. Berikut ringkasan bisnis Anda."
       />
+      
+      {/* Financial Summary Cards */}
+      <div className="mb-6">
+        <FinancialSummaryCards summary={mockFinancialSummary} />
+      </div>
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Work Orders"
           value="28"
-          description="7 pending approval"
+          description="7 menunggu persetujuan"
           icon={<Briefcase className="h-5 w-5" />}
           trend={{ value: 12, isPositive: true }}
         />
         <StatCard
           title="Customers"
           value="142"
-          description="18 new this month"
+          description="18 baru bulan ini"
           icon={<Users className="h-5 w-5" />}
           trend={{ value: 8, isPositive: true }}
         />
         <StatCard
           title="Inventory Items"
           value="568"
-          description="12 low stock alerts"
+          description="12 stok rendah"
           icon={<Package className="h-5 w-5" />}
           trend={{ value: 3, isPositive: false }}
         />
         <StatCard
-          title="Scheduled Jobs"
+          title="Jadwal Pekerjaan"
           value="16"
-          description="Next 7 days"
+          description="7 hari ke depan"
           icon={<Clock className="h-5 w-5" />}
           trend={{ value: 5, isPositive: true }}
         />
@@ -126,9 +142,9 @@ const Dashboard: React.FC = () => {
         <DashboardCard title="Revenue Overview" className="md:col-span-4">
           <Tabs defaultValue="monthly" className="w-full">
             <TabsList className="mb-4">
-              <TabsTrigger value="weekly">Weekly</TabsTrigger>
-              <TabsTrigger value="monthly">Monthly</TabsTrigger>
-              <TabsTrigger value="yearly">Yearly</TabsTrigger>
+              <TabsTrigger value="weekly">Mingguan</TabsTrigger>
+              <TabsTrigger value="monthly">Bulanan</TabsTrigger>
+              <TabsTrigger value="yearly">Tahunan</TabsTrigger>
             </TabsList>
             <TabsContent value="weekly" className="w-full">
               <div className="h-[300px] w-full">
@@ -142,10 +158,10 @@ const Dashboard: React.FC = () => {
                     <YAxis 
                       stroke="#888888" 
                       fontSize={12} 
-                      tickFormatter={(value) => `$${value}`} 
+                      tickFormatter={(value) => formatRupiah(value)} 
                     />
                     <Tooltip 
-                      formatter={(value) => [`$${value}`, "Revenue"]} 
+                      formatter={(value) => [formatRupiah(value as number), "Revenue"]} 
                       contentStyle={{ 
                         borderRadius: '8px', 
                         border: '1px solid #e2e8f0', 
@@ -176,10 +192,10 @@ const Dashboard: React.FC = () => {
                     <YAxis 
                       stroke="#888888" 
                       fontSize={12} 
-                      tickFormatter={(value) => `$${value}`} 
+                      tickFormatter={(value) => formatRupiah(value)} 
                     />
                     <Tooltip 
-                      formatter={(value) => [`$${value}`, "Revenue"]} 
+                      formatter={(value) => [formatRupiah(value as number), "Revenue"]} 
                       contentStyle={{ 
                         borderRadius: '8px', 
                         border: '1px solid #e2e8f0', 
@@ -210,10 +226,10 @@ const Dashboard: React.FC = () => {
                     <YAxis 
                       stroke="#888888" 
                       fontSize={12} 
-                      tickFormatter={(value) => `$${value}`} 
+                      tickFormatter={(value) => formatRupiah(value)} 
                     />
                     <Tooltip 
-                      formatter={(value) => [`$${value}`, "Revenue"]} 
+                      formatter={(value) => [formatRupiah(value as number), "Revenue"]} 
                       contentStyle={{ 
                         borderRadius: '8px', 
                         border: '1px solid #e2e8f0', 
@@ -239,7 +255,7 @@ const Dashboard: React.FC = () => {
       </div>
       
       <div className="grid gap-6 mt-6 md:grid-cols-2">
-        <DashboardCard title="Work Order Types">
+        <DashboardCard title="Tipe Work Order">
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
@@ -259,7 +275,7 @@ const Dashboard: React.FC = () => {
                 <Legend />
                 <Bar 
                   dataKey="value" 
-                  name="Count" 
+                  name="Jumlah" 
                   fill="hsl(var(--primary))" 
                   radius={[4, 4, 0, 0]} 
                 />
@@ -268,12 +284,12 @@ const Dashboard: React.FC = () => {
           </div>
         </DashboardCard>
         
-        <DashboardCard title="Financial Summary">
+        <DashboardCard title="Ringkasan Keuangan">
           <div className="space-y-8">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Revenue (MTD)</p>
-                <h4 className="text-2xl font-bold mt-1">$42,890</h4>
+                <p className="text-sm font-medium text-muted-foreground">Total Pendapatan (MTD)</p>
+                <h4 className="text-2xl font-bold mt-1">{formatRupiah(42890000)}</h4>
               </div>
               <div className="p-2 rounded-full bg-green-100 text-green-700">
                 <DollarSign className="h-5 w-5" />
@@ -282,8 +298,8 @@ const Dashboard: React.FC = () => {
             
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Outstanding Invoices</p>
-                <h4 className="text-2xl font-bold mt-1">$12,450</h4>
+                <p className="text-sm font-medium text-muted-foreground">Faktur Tertunda</p>
+                <h4 className="text-2xl font-bold mt-1">{formatRupiah(12450000)}</h4>
               </div>
               <div className="p-2 rounded-full bg-yellow-100 text-yellow-700">
                 <DollarSign className="h-5 w-5" />
@@ -292,8 +308,8 @@ const Dashboard: React.FC = () => {
             
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Average Job Value</p>
-                <h4 className="text-2xl font-bold mt-1">$3,245</h4>
+                <p className="text-sm font-medium text-muted-foreground">Rata-rata Nilai Pekerjaan</p>
+                <h4 className="text-2xl font-bold mt-1">{formatRupiah(3245000)}</h4>
               </div>
               <div className="p-2 rounded-full bg-blue-100 text-blue-700">
                 <DollarSign className="h-5 w-5" />
