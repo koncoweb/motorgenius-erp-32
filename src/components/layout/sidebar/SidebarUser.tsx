@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -18,7 +17,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Profile, User } from "@/context/auth/types";
+import { Profile } from "@/context/auth/types";
+import { User } from "@supabase/supabase-js";
 
 interface SidebarUserProps {
   collapsed: boolean;
