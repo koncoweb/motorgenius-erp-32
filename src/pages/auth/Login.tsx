@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -147,7 +146,7 @@ export default function Login() {
         <Card className="shadow-lg">
           <CardHeader className="space-y-1 text-center">
             <div className="flex justify-center mb-4">
-              <img src="/mesindo-logo.svg" alt="Mesindo Logo" className="h-12" />
+              <img src="https://th.bing.com/th?id=OIP.2p-hnB0S4t4dGYuwuAu2twAAAA&w=80&h=80&c=1&vt=10&bgcl=616af2&r=0&o=6&dpr=1.3&pid=ImgRC" alt="Company Logo" className="h-16" />
             </div>
             <CardTitle className="text-2xl font-bold">Login</CardTitle>
             <CardDescription>
