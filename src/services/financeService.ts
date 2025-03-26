@@ -30,7 +30,11 @@ export async function fetchTransactions(): Promise<FinancialTransaction[]> {
     throw error;
   }
 
-  return data || [];
+  // Validate and convert the type property to ensure it matches our union type
+  return (data || []).map(item => ({
+    ...item,
+    type: item.type === 'revenue' ? 'revenue' : 'expense'
+  } as FinancialTransaction));
 }
 
 export async function fetchSummaries(): Promise<FinancialSummary[]> {
@@ -58,7 +62,11 @@ export async function addTransaction(transaction: Omit<FinancialTransaction, 'id
     throw error;
   }
 
-  return data;
+  // Ensure the returned data has the correct type format
+  return {
+    ...data,
+    type: data.type === 'revenue' ? 'revenue' : 'expense'
+  } as FinancialTransaction;
 }
 
 export async function deleteTransaction(id: string): Promise<void> {
