@@ -112,12 +112,21 @@ const Customers: React.FC = () => {
 
   const handleSaveCustomer = async (customerData: Partial<Customer>) => {
     try {
-      // Create a customer object with default values for the required fields
+      // Ensure required fields have default values if not provided
       const customerToAdd = {
-        ...customerData,
+        name: customerData.name || "",  // Required field must have a default
+        company: customerData.company || "",  // Required field must have a default
+        email: customerData.email || "",  // Required field must have a default
+        phone: customerData.phone || "",  // Required field must have a default
         totalOrders: 0,
         totalSpent: 0,
-        lastOrder: new Date().toISOString().split('T')[0]
+        lastOrder: new Date().toISOString().split('T')[0],
+        // Include other optional fields
+        address: customerData.address,
+        pic_name: customerData.pic_name,
+        contract_value: customerData.contract_value,
+        contract_start_date: customerData.contract_start_date,
+        contract_end_date: customerData.contract_end_date
       };
       
       const customer = await addCustomer(customerToAdd);

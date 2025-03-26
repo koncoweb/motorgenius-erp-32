@@ -175,7 +175,7 @@ export async function updateCustomer(id: string, customer: Partial<Customer>): P
 
 export interface CustomerDocument {
   id: string;
-  customer_id: string; // Mengubah dari number menjadi string untuk menyesuaikan dengan interface
+  customer_id: string; // Changed from number to string to match the interface
   file_name: string;
   file_path: string;
   uploaded_at: string;
