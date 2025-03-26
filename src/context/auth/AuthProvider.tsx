@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
+  const signUp = async (email: string, password: string, firstName: string, lastName: string, role: string = 'employee') => {
     try {
       const { error } = await supabase.auth.signUp({
         email, 
@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: {
             first_name: firstName,
             last_name: lastName,
-            role: 'employee' // Default role for new sign-ups
+            role: role // Use the role parameter provided
           }
         }
       });

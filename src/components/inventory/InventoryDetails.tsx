@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { InventoryItem, getStockStatus } from "./inventoryUtils";
+import { formatRupiah } from "@/lib/utils";
 
 interface InventoryDetailsProps {
   item: InventoryItem | null;
@@ -82,7 +83,7 @@ export const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           </div>
           <div className="flex justify-between items-center">
             <span className="font-medium">Unit Price:</span>
-            <span>${item.unitPrice}</span>
+            <span>{formatRupiah(item.unitPrice)}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="font-medium">Last Restocked:</span>
@@ -90,7 +91,7 @@ export const InventoryDetails: React.FC<InventoryDetailsProps> = ({
           </div>
           <div className="flex justify-between items-center">
             <span className="font-medium">Total Value:</span>
-            <span>${(item.currentStock * item.unitPrice).toLocaleString()}</span>
+            <span>{formatRupiah(item.currentStock * item.unitPrice)}</span>
           </div>
         </div>
         <DialogFooter className="flex flex-col sm:flex-row gap-2">

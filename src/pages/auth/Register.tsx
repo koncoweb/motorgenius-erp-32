@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
@@ -14,7 +15,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const registerSchema = z.object({
   firstName: z.string().min(2, { message: "First name must be at least 2 characters" }),
@@ -22,6 +32,7 @@ const registerSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   confirmPassword: z.string(),
+  role: z.enum(["employee", "admin"]),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -31,6 +42,7 @@ type RegisterValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
   const { signUp } = useAuth();
+  const [registrationError, setRegistrationError] = useState<string | null>(null);
   
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -40,15 +52,17 @@ export default function Register() {
       email: "",
       password: "",
       confirmPassword: "",
+      role: "employee",
     },
   });
 
   const onSubmit = async (values: RegisterValues) => {
     try {
-      await signUp(values.email, values.password, values.firstName, values.lastName);
-    } catch (error) {
-      // Error handling is done in the signUp function
+      setRegistrationError(null);
+      await signUp(values.email, values.password, values.firstName, values.lastName, values.role);
+    } catch (error: any) {
       console.error("Registration error:", error);
+      setRegistrationError(error.message || "Registration failed. Please try again.");
     }
   };
 
@@ -63,6 +77,13 @@ export default function Register() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {registrationError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{registrationError}</AlertDescription>
+              </Alert>
+            )}
+            
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -128,6 +149,27 @@ export default function Register() {
                       <FormControl>
                         <Input placeholder="******" type="password" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>User Role</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="employee">Employee</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

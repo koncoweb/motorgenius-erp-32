@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { formatRupiah } from "@/lib/utils";
 
 interface InventoryItem {
   id: string;
@@ -42,6 +43,7 @@ export const LowStockTable: React.FC<LowStockTableProps> = ({ items }) => {
             <TableHead>Category</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead>Min Stock</TableHead>
+            <TableHead>Unit Price</TableHead>
             <TableHead>Location</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -54,6 +56,7 @@ export const LowStockTable: React.FC<LowStockTableProps> = ({ items }) => {
               <TableCell>{item.category}</TableCell>
               <TableCell className="text-red-600 font-medium">{item.currentStock}</TableCell>
               <TableCell>{item.minStock}</TableCell>
+              <TableCell>{formatRupiah(item.unitPrice)}</TableCell>
               <TableCell>{item.location}</TableCell>
               <TableCell className="text-right">
                 <Button

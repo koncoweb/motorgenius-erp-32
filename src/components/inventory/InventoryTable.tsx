@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, QrCode, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { formatRupiah } from "@/lib/utils";
 
 interface InventoryItem {
   id: string;
@@ -94,7 +95,7 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                 </div>
               </TableCell>
               <TableCell>{item.location}</TableCell>
-              <TableCell>${item.unitPrice}</TableCell>
+              <TableCell>{formatRupiah(item.unitPrice)}</TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
                   <Button

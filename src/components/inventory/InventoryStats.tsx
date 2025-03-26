@@ -4,6 +4,7 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart3 } from "lucide-react";
+import { formatRupiah } from "@/lib/utils";
 
 interface InventoryItem {
   id: string;
@@ -66,7 +67,7 @@ export const InventoryStats: React.FC<InventoryStatsProps> = ({ inventoryItems }
         
         <DashboardCard title="Inventory Value">
           <div className="text-3xl font-bold">
-            ${totalValue.toLocaleString()}
+            {formatRupiah(totalValue)}
           </div>
           <p className="text-sm text-muted-foreground mt-1">Total value of inventory</p>
         </DashboardCard>
