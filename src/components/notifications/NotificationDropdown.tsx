@@ -1,152 +1,117 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuGroup, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuFooter,
 } from "@/components/ui/dropdown-menu";
-import { Bell, CheckCircle, Clock, DollarSign, Package, ClipboardCheck } from "lucide-react";
-import { 
-  Notification,
-  fetchNotifications,
-  getUnreadNotificationsCount,
-  markNotificationAsRead,
-  markAllNotificationsAsRead
-} from "@/services/notificationService";
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from "@/lib/utils";
 
-export function NotificationDropdown() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const { toast } = useToast();
+interface Notification {
+  id: string;
+  title: string;
+  content: string;
+  is_read: boolean;
+  created_at: string;
+  notification_type: string;
+  link: string | null;
+}
+
+interface NotificationDropdownProps {
+  notifications: Notification[];
+  unreadCount: number;
+  onMarkAsRead: (id: string) => void;
+  onMarkAllAsRead: () => void;
+}
+
+export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
+  notifications,
+  unreadCount,
+  onMarkAsRead,
+  onMarkAllAsRead
+}) => {
   const navigate = useNavigate();
-
-  const loadNotifications = async () => {
-    setIsLoading(true);
-    const data = await fetchNotifications();
-    setNotifications(data);
-    const count = await getUnreadNotificationsCount();
-    setUnreadCount(count);
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    loadNotifications();
-  }, []);
-
-  // Reload notifications when dropdown opens
-  useEffect(() => {
-    if (isOpen) {
-      loadNotifications();
-    }
-  }, [isOpen]);
-
-  const handleNotificationClick = async (notification: Notification) => {
-    // Mark as read
-    await markNotificationAsRead(notification.id);
-    
-    // Navigate to the linked page if there is one
+  
+  const handleNotificationClick = (notification: Notification) => {
+    onMarkAsRead(notification.id);
     if (notification.link) {
       navigate(notification.link);
     }
-    
-    // Refresh notification list
-    loadNotifications();
-    
-    // Close dropdown
-    setIsOpen(false);
   };
-
-  const handleMarkAllAsRead = async () => {
-    await markAllNotificationsAsRead();
-    toast({
-      title: "All notifications marked as read",
-      description: "Your notifications have been cleared",
-    });
-    loadNotifications();
-  };
-
-  // Get icon based on notification type
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'inventory':
-        return <Package className="h-4 w-4 mr-2 text-blue-500" />;
-      case 'quality':
-        return <ClipboardCheck className="h-4 w-4 mr-2 text-green-500" />;
-      case 'finance':
-        return <DollarSign className="h-4 w-4 mr-2 text-purple-500" />;
-      case 'scheduling':
-        return <Clock className="h-4 w-4 mr-2 text-amber-500" />;
-      default:
-        return <Bell className="h-4 w-4 mr-2 text-gray-500" />;
-    }
-  };
-
+  
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {unreadCount}
+            </span>
           )}
           <span className="sr-only">Notifications</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80" align="end">
+      <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex justify-between items-center">
-          <span>Notifications {unreadCount > 0 && `(${unreadCount})`}</span>
+          <span>Notifications</span>
           {unreadCount > 0 && (
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-xs flex items-center" 
-              onClick={handleMarkAllAsRead}
+              onClick={onMarkAllAsRead}
+              className="text-xs h-7"
             >
-              <CheckCircle className="h-3 w-3 mr-1" />
               Mark all as read
             </Button>
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         
-        <div className="max-h-80 overflow-y-auto">
-          <DropdownMenuGroup>
-            {isLoading ? (
-              <div className="p-4 text-center text-muted-foreground">Loading notifications...</div>
-            ) : notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <DropdownMenuItem 
-                  key={notification.id} 
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`cursor-pointer ${!notification.is_read ? 'bg-muted/50 font-medium' : ''}`}
-                >
-                  <div className="flex items-start">
-                    {getNotificationIcon(notification.notification_type)}
-                    <div>
-                      <div className="font-medium">{notification.title}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{notification.content}</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {new Date(notification.created_at).toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-              ))
-            ) : (
-              <div className="p-4 text-center text-muted-foreground">No notifications</div>
-            )}
-          </DropdownMenuGroup>
-        </div>
+        {notifications.length === 0 ? (
+          <div className="py-6 text-center text-muted-foreground">
+            No notifications
+          </div>
+        ) : (
+          <>
+            {notifications.map((notification) => (
+              <DropdownMenuItem
+                key={notification.id}
+                className={`flex flex-col items-start p-3 cursor-pointer ${
+                  !notification.is_read ? "bg-muted/50" : ""
+                }`}
+                onClick={() => handleNotificationClick(notification)}
+              >
+                <div className="flex w-full justify-between">
+                  <span className="font-medium">{notification.title}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDate(notification.created_at)}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {notification.content}
+                </p>
+                {!notification.is_read && (
+                  <span className="w-2 h-2 bg-blue-500 rounded-full absolute top-3 right-3"></span>
+                )}
+              </DropdownMenuItem>
+            ))}
+          </>
+        )}
+        
+        <DropdownMenuFooter className="text-xs text-center py-2 text-muted-foreground">
+          <Button variant="link" size="sm" onClick={() => navigate("/notifications")} className="h-auto p-0">
+            View all notifications
+          </Button>
+        </DropdownMenuFooter>
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+};

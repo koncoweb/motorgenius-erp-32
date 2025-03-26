@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MoreHorizontal, Eye, Edit, Trash, Mail, Phone } from "lucide-react";
+import { formatRupiah } from "@/lib/utils";
 
 interface Customer {
   id: string;
@@ -101,7 +102,7 @@ export const CustomerTable: React.FC<CustomerTableProps> = ({
                 </div>
               </TableCell>
               <TableCell>{customer.totalOrders}</TableCell>
-              <TableCell>${customer.totalSpent.toLocaleString()}</TableCell>
+              <TableCell>{formatRupiah(customer.totalSpent)}</TableCell>
               <TableCell>{customer.lastOrder}</TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>

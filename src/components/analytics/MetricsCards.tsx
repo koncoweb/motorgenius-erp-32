@@ -8,6 +8,7 @@ import {
   DollarSign, 
   ClipboardCheck 
 } from "lucide-react";
+import { formatRupiah } from "@/lib/utils";
 
 interface MetricsCardsProps {
   data: AnalyticsMetric[];
@@ -53,7 +54,7 @@ export function MetricsCards({ data }: MetricsCardsProps) {
       
       <StatCard 
         title="Monthly Revenue" 
-        value={`$${monthlyRevenue.toLocaleString()}`}
+        value={formatRupiah(monthlyRevenue)}
         icon={<DollarSign className="h-5 w-5" />}
         description="Total revenue this month"
         trend={{ value: 12, isPositive: true }}

@@ -3,6 +3,7 @@ import React from "react";
 import { FinancialSummary } from "@/services/financeService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowDownRight, ArrowUpRight, DollarSign } from "lucide-react";
+import { formatRupiah } from "@/lib/utils";
 
 interface FinancialSummaryCardsProps {
   summary: FinancialSummary | null;
@@ -10,13 +11,6 @@ interface FinancialSummaryCardsProps {
 }
 
 export function FinancialSummaryCards({ summary, isLoading = false }: FinancialSummaryCardsProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
-
   const formatMonthYear = (dateString: string) => {
     if (!dateString) return "Current Month";
     const date = new Date(dateString);
@@ -47,7 +41,7 @@ export function FinancialSummaryCards({ summary, isLoading = false }: FinancialS
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Revenue</CardDescription>
-            <CardTitle className="text-2xl text-green-600">$0.00</CardTitle>
+            <CardTitle className="text-2xl text-green-600">Rp0</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex items-center">
@@ -59,7 +53,7 @@ export function FinancialSummaryCards({ summary, isLoading = false }: FinancialS
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Expenses</CardDescription>
-            <CardTitle className="text-2xl text-red-600">$0.00</CardTitle>
+            <CardTitle className="text-2xl text-red-600">Rp0</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex items-center">
@@ -71,7 +65,7 @@ export function FinancialSummaryCards({ summary, isLoading = false }: FinancialS
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Net Income</CardDescription>
-            <CardTitle className="text-2xl">$0.00</CardTitle>
+            <CardTitle className="text-2xl">Rp0</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex items-center">
@@ -92,7 +86,7 @@ export function FinancialSummaryCards({ summary, isLoading = false }: FinancialS
         <CardHeader className="pb-2">
           <CardDescription>{period} Revenue</CardDescription>
           <CardTitle className="text-2xl text-green-600">
-            {formatCurrency(summary.total_revenue)}
+            {formatRupiah(summary.total_revenue)}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
@@ -106,7 +100,7 @@ export function FinancialSummaryCards({ summary, isLoading = false }: FinancialS
         <CardHeader className="pb-2">
           <CardDescription>{period} Expenses</CardDescription>
           <CardTitle className="text-2xl text-red-600">
-            {formatCurrency(summary.total_expenses)}
+            {formatRupiah(summary.total_expenses)}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
@@ -120,7 +114,7 @@ export function FinancialSummaryCards({ summary, isLoading = false }: FinancialS
         <CardHeader className="pb-2">
           <CardDescription>{period} Net Income</CardDescription>
           <CardTitle className={`text-2xl ${summary.net_income >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {formatCurrency(summary.net_income)}
+            {formatRupiah(summary.net_income)}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">

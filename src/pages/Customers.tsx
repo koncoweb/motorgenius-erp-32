@@ -3,18 +3,12 @@ import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CustomerTable } from "@/components/customers/CustomerTable";
+import { CustomerDetailView } from "@/components/customers/CustomerDetailView";
+import { CustomerForm } from "@/components/customers/CustomerForm";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,7 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchCustomers, addCustomer, deleteCustomer, Customer } from "@/services/customerService";
+import { 
+  fetchCustomers, 
+  addCustomer, 
+  deleteCustomer, 
+  updateCustomer, 
+  getCustomerDetails,
+  Customer 
+} from "@/services/customerService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const Customers: React.FC = () => {
@@ -45,25 +46,44 @@ const Customers: React.FC = () => {
     email: "",
     phone: "",
   });
-  const [viewCustomerDetails, setViewCustomerDetails] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   const handleCreateCustomer = () => {
     setIsCreateDialogOpen(true);
   };
 
-  const handleViewCustomer = (id: string) => {
-    const customer = customers.find(c => c.id === id);
-    if (customer) {
-      setViewCustomerDetails(customer);
-      setIsViewDialogOpen(true);
-    } else {
-      toast.error("Customer not found");
+  const handleViewCustomer = async (id: string) => {
+    try {
+      const customer = await getCustomerDetails(id);
+      if (customer) {
+        setSelectedCustomer(customer);
+        setIsViewDialogOpen(true);
+      } else {
+        toast.error("Customer not found");
+      }
+    } catch (error) {
+      console.error("Error fetching customer details:", error);
+      toast.error("Failed to load customer details");
     }
   };
 
-  const handleEditCustomer = (id: string) => {
-    toast.info(`Editing customer ${id}`);
+  const handleEditCustomer = async (id: string, updatedData: Partial<Customer>) => {
+    try {
+      const updatedCustomer = await updateCustomer(id, updatedData);
+      if (updatedCustomer) {
+        toast.success("Customer updated successfully");
+        // Refresh customer data
+        queryClient.invalidateQueries({ queryKey: ['customers'] });
+        // Update selected customer with new data
+        setSelectedCustomer(updatedCustomer);
+      } else {
+        toast.error("Failed to update customer");
+      }
+    } catch (error) {
+      console.error("Error updating customer:", error);
+      toast.error("An error occurred while updating the customer");
+    }
   };
 
   const handleDeleteCustomer = async (id: string) => {
@@ -90,11 +110,11 @@ const Customers: React.FC = () => {
     toast.info(`Calling ${phone}`);
   };
 
-  const handleSaveCustomer = async () => {
+  const handleSaveCustomer = async (customerData: Partial<Customer>) => {
     try {
       // Create a customer object with default values for the required fields
       const customerToAdd = {
-        ...newCustomer,
+        ...customerData,
         totalOrders: 0,
         totalSpent: 0,
         lastOrder: new Date().toISOString().split('T')[0]
@@ -106,13 +126,7 @@ const Customers: React.FC = () => {
         toast.success("Customer created successfully");
         // Refresh the customer list
         queryClient.invalidateQueries({ queryKey: ['customers'] });
-        // Reset form and close dialog
-        setNewCustomer({
-          name: "",
-          company: "",
-          email: "",
-          phone: "",
-        });
+        // Close dialog
         setIsCreateDialogOpen(false);
       } else {
         toast.error("Failed to create customer");
@@ -132,9 +146,9 @@ const Customers: React.FC = () => {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         customer =>
-          customer.name.toLowerCase().includes(query) ||
-          customer.company.toLowerCase().includes(query) ||
-          customer.email.toLowerCase().includes(query)
+          customer.name?.toLowerCase().includes(query) ||
+          customer.company?.toLowerCase().includes(query) ||
+          customer.email?.toLowerCase().includes(query)
       );
     }
     
@@ -142,15 +156,15 @@ const Customers: React.FC = () => {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "name":
-          return a.name.localeCompare(b.name);
+          return (a.name || '').localeCompare(b.name || '');
         case "company":
-          return a.company.localeCompare(b.company);
+          return (a.company || '').localeCompare(b.company || '');
         case "totalOrders":
-          return b.totalOrders - a.totalOrders;
+          return (b.totalOrders || 0) - (a.totalOrders || 0);
         case "totalSpent":
-          return b.totalSpent - a.totalSpent;
+          return (b.totalSpent || 0) - (a.totalSpent || 0);
         case "lastOrder":
-          return new Date(b.lastOrder).getTime() - new Date(a.lastOrder).getTime();
+          return new Date(b.lastOrder || '').getTime() - new Date(a.lastOrder || '').getTime();
         default:
           return 0;
       }
@@ -162,8 +176,8 @@ const Customers: React.FC = () => {
   return (
     <Layout>
       <PageHeader
-        title="Customers"
-        description="Manage your customer relationships"
+        title="Customer Relationship Management"
+        description="Manage customer data, contracts, and relationships"
         actionLabel="Add Customer"
         actionIcon={<Plus size={16} />}
         onAction={handleCreateCustomer}
@@ -208,7 +222,7 @@ const Customers: React.FC = () => {
           <CustomerTable
             customers={filteredCustomers}
             onView={handleViewCustomer}
-            onEdit={handleEditCustomer}
+            onEdit={(id) => handleViewCustomer(id)}
             onDelete={handleDeleteCustomer}
             onEmail={handleEmailCustomer}
             onCall={handleCallCustomer}
@@ -216,105 +230,19 @@ const Customers: React.FC = () => {
         </div>
       )}
       
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Customer</DialogTitle>
-            <DialogDescription>
-              Fill in the details to add a new customer.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={newCustomer.name}
-                onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="company" className="text-right">
-                Company
-              </Label>
-              <Input
-                id="company"
-                value={newCustomer.company}
-                onChange={(e) => setNewCustomer({...newCustomer, company: e.target.value})}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={newCustomer.email}
-                onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phone" className="text-right">
-                Phone
-              </Label>
-              <Input
-                id="phone"
-                value={newCustomer.phone}
-                onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
-                className="col-span-3"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleSaveCustomer}>
-              Add Customer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CustomerForm
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onSave={handleSaveCustomer}
+        title="Add New Customer"
+      />
       
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Customer Details</DialogTitle>
-          </DialogHeader>
-          {viewCustomerDetails && (
-            <div className="grid gap-4 py-4">
-              <div className="flex flex-col space-y-1">
-                <h3 className="font-medium text-sm text-muted-foreground">Name</h3>
-                <p>{viewCustomerDetails.name}</p>
-              </div>
-              <div className="flex flex-col space-y-1">
-                <h3 className="font-medium text-sm text-muted-foreground">Company</h3>
-                <p>{viewCustomerDetails.company}</p>
-              </div>
-              <div className="flex flex-col space-y-1">
-                <h3 className="font-medium text-sm text-muted-foreground">Contact</h3>
-                <p>Email: {viewCustomerDetails.email}</p>
-                <p>Phone: {viewCustomerDetails.phone}</p>
-              </div>
-              <div className="flex flex-col space-y-1">
-                <h3 className="font-medium text-sm text-muted-foreground">Statistics</h3>
-                <p>Total Orders: {viewCustomerDetails.totalOrders}</p>
-                <p>Total Spent: ${viewCustomerDetails.totalSpent.toLocaleString()}</p>
-                <p>Last Order: {viewCustomerDetails.lastOrder}</p>
-              </div>
-            </div>
-          )}
-          <DialogFooter>
-            <Button onClick={() => setIsViewDialogOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CustomerDetailView
+        customer={selectedCustomer}
+        isOpen={isViewDialogOpen}
+        onClose={() => setIsViewDialogOpen(false)}
+        onEdit={handleEditCustomer}
+      />
     </Layout>
   );
 };

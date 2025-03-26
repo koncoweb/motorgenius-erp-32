@@ -39,37 +39,87 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_documents: {
+        Row: {
+          customer_id: number
+          document_type: string
+          file_name: string
+          file_path: string
+          id: string
+          uploaded_at: string | null
+        }
+        Insert: {
+          customer_id: number
+          document_type: string
+          file_name: string
+          file_path: string
+          id?: string
+          uploaded_at?: string | null
+        }
+        Update: {
+          customer_id?: number
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_documents_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
+          address: string | null
           company: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          contract_value: number | null
           created_at: string
           email: string | null
           id: number
           last_order: string | null
           name: string | null
           phone: string | null
+          pic_name: string | null
           total_orders: number | null
           total_spent: number | null
         }
         Insert: {
+          address?: string | null
           company?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          contract_value?: number | null
           created_at?: string
           email?: string | null
           id?: number
           last_order?: string | null
           name?: string | null
           phone?: string | null
+          pic_name?: string | null
           total_orders?: number | null
           total_spent?: number | null
         }
         Update: {
+          address?: string | null
           company?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          contract_value?: number | null
           created_at?: string
           email?: string | null
           id?: number
           last_order?: string | null
           name?: string | null
           phone?: string | null
+          pic_name?: string | null
           total_orders?: number | null
           total_spent?: number | null
         }
