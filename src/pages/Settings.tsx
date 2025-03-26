@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -96,13 +95,11 @@ const Settings: React.FC = () => {
                   <Separator className="my-4" />
                   
                   <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
-                    <textarea 
-                      id="bio" 
-                      rows={4}
-                      defaultValue={profile?.bio || ""}
-                      placeholder="Ceritakan sedikit tentang diri Anda"
-                      className="w-full min-h-[100px] rounded-md border border-input bg-background p-3 text-sm"
+                    <Label htmlFor="department">Departemen</Label>
+                    <Input 
+                      id="department" 
+                      defaultValue={profile?.department || ""}
+                      placeholder="Departemen Anda" 
                     />
                   </div>
                   
