@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -145,6 +146,9 @@ export default function Login() {
       <div className="w-full max-w-md">
         <Card className="shadow-lg">
           <CardHeader className="space-y-1 text-center">
+            <div className="flex justify-center mb-4">
+              <img src="/mesindo-logo.svg" alt="Mesindo Logo" className="h-12" />
+            </div>
             <CardTitle className="text-2xl font-bold">Login</CardTitle>
             <CardDescription>
               Enter your email and password to access your account

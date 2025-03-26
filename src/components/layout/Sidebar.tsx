@@ -34,7 +34,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ open = true }) => {
             ? "w-0 -translate-x-full"
             : "w-16 items-center",
           "transition-all duration-300",
-          isMobile ? "border-r-0 bg-background/95 backdrop-blur-sm" : ""
+          isMobile ? "border-r-0 bg-background/95 backdrop-blur-sm" : "",
+          "text-sidebar-foreground [&_span]:neon-text [&_a]:neon-text-hover"
         )}
       >
         <SidebarHeader 
