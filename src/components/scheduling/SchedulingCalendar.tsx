@@ -4,7 +4,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, addMonths, subMonths } from 'date-fns';
+import { format, addMonths, subMonths, isSameDay } from 'date-fns';
 import { ScheduleItem } from '@/services/schedulingService';
 
 interface SchedulingCalendarProps {
@@ -30,9 +30,11 @@ export const SchedulingCalendar: React.FC<SchedulingCalendarProps> = ({
 
   // Function to get appointments for a specific date
   const getAppointmentsForDate = (date: Date) => {
+    if (!date) return 0;
+    
     const formattedDate = format(date, 'yyyy-MM-dd');
     return scheduleItems.filter(item => 
-      item.start_time.startsWith(formattedDate)
+      item.start_time && item.start_time.startsWith(formattedDate)
     ).length;
   };
 
@@ -76,16 +78,21 @@ export const SchedulingCalendar: React.FC<SchedulingCalendarProps> = ({
             }
           }}
           components={{
-            DayContent: ({ day }) => (
-              <div className="flex flex-col items-center justify-center">
-                <span>{format(day, 'd')}</span>
-                {getAppointmentsForDate(day) > 0 && (
-                  <span className="text-xs text-primary mt-1">
-                    {getAppointmentsForDate(day)} appt
-                  </span>
-                )}
-              </div>
-            ),
+            DayContent: ({ date }) => {
+              if (!date) return null;
+              
+              const apptCount = getAppointmentsForDate(date);
+              return (
+                <div className="flex flex-col items-center justify-center">
+                  <span>{format(date, 'd')}</span>
+                  {apptCount > 0 && (
+                    <span className="text-xs text-primary mt-1">
+                      {apptCount} appt
+                    </span>
+                  )}
+                </div>
+              );
+            },
           }}
         />
       </CardContent>
