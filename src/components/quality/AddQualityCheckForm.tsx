@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { fetchWorkOrders } from "@/services/workOrderService";
 import { useQueryClient } from "@tanstack/react-query";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 interface AddQualityCheckFormProps {
   open: boolean;
@@ -142,7 +143,7 @@ export const AddQualityCheckForm: React.FC<AddQualityCheckFormProps> = ({
                   <SelectValue placeholder="Select work order" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="null">None</SelectItem>
                   {workOrders.map((order) => (
                     <SelectItem key={order.id} value={order.id.toString()}>
                       {order.workOrderNumber} - {order.customer}
@@ -191,7 +192,7 @@ export const AddQualityCheckForm: React.FC<AddQualityCheckFormProps> = ({
                   <SelectValue placeholder="Select rating" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="null">None</SelectItem>
                   <SelectItem value="1">1 - Poor</SelectItem>
                   <SelectItem value="2">2 - Fair</SelectItem>
                   <SelectItem value="3">3 - Average</SelectItem>

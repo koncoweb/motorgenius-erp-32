@@ -200,7 +200,7 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="null">None</SelectItem>
                       {workOrders.map((order) => (
                         <SelectItem key={order.id} value={order.id}>
                           {order.workOrderNumber} - {order.customer}
@@ -229,7 +229,7 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">Unassigned</SelectItem>
+                      <SelectItem value="null">Unassigned</SelectItem>
                       {teamMembers.map((member) => (
                         <SelectItem key={member.id} value={member.id}>
                           {member.name} ({member.role})

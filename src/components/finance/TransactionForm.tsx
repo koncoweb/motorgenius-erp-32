@@ -1,4 +1,3 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -92,7 +91,6 @@ export function TransactionForm({ isOpen, onClose, onSubmit, defaultType = 'reve
   }
 
   React.useEffect(() => {
-    // Reset category when type changes
     form.setValue("category", "");
   }, [type, form]);
 
