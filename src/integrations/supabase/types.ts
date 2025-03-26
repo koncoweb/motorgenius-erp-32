@@ -150,6 +150,66 @@ export type Database = {
         }
         Relationships: []
       }
+      scheduling: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          end_time: string
+          id: string
+          location: string | null
+          notes: string | null
+          start_time: string
+          status: string | null
+          team_member_id: number | null
+          title: string
+          updated_at: string | null
+          work_order_id: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          end_time: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          start_time: string
+          status?: string | null
+          team_member_id?: number | null
+          title: string
+          updated_at?: string | null
+          work_order_id?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          end_time?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          start_time?: string
+          status?: string | null
+          team_member_id?: number | null
+          title?: string
+          updated_at?: string | null
+          work_order_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduling_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduling_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team: {
         Row: {
           avatar: string | null
