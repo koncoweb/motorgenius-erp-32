@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface QualityCheck {
@@ -130,6 +129,21 @@ export async function fetchQualityCheckResults(qualityCheckId: string): Promise<
     console.error('Failed to fetch quality check results:', error);
     return [];
   }
+}
+
+export async function fetchQualityCheckById(id: string): Promise<QualityCheck | null> {
+  const { data, error } = await supabase
+    .from('quality_checks')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching quality check:', error);
+    return null;
+  }
+
+  return data;
 }
 
 export async function addQualityCheck(

@@ -6,6 +6,7 @@ import { TransactionsTable } from "@/components/finance/TransactionsTable";
 import { FinancialSummaryCards } from "@/components/finance/FinancialSummaryCards";
 import { RevenueChart } from "@/components/finance/RevenueChart";
 import { TransactionForm } from "@/components/finance/TransactionForm";
+import { ExportFinanceData } from "@/components/finance/ExportFinanceData";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
 import { PlusCircle, TrendingUp, ArrowDown, ArrowUp, Filter } from "lucide-react";
@@ -193,6 +194,7 @@ const Finance: React.FC = () => {
                 <ArrowDown className="h-4 w-4" />
                 Add Expense
               </Button>
+              <ExportFinanceData transactions={filteredTransactions} />
             </div>
           </div>
           

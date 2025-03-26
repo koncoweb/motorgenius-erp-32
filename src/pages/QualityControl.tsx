@@ -16,11 +16,13 @@ import {
   QualityCheck, 
   deleteQualityCheck, 
   fetchQualityChecks, 
-  fetchQualityStandards 
+  fetchQualityStandards, 
+  fetchQualityCheckById
 } from "@/services/qualityService";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { QualityCheckDetailDialog } from "@/components/quality/QualityCheckDetailDialog";
 
 const QualityControl: React.FC = () => {
   // Query client for refetching data
@@ -31,11 +33,20 @@ const QualityControl: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [viewingCheckId, setViewingCheckId] = useState<string | null>(null);
+  const [editingCheckId, setEditingCheckId] = useState<string | null>(null);
   
   // Fetch quality checks
   const { data: qualityChecks = [], isLoading: isLoadingChecks } = useQuery({
     queryKey: ['qualityChecks'],
     queryFn: fetchQualityChecks,
+  });
+  
+  // Fetch the specific quality check when viewingCheckId changes
+  const { data: viewingCheck, isLoading: isLoadingViewCheck } = useQuery({
+    queryKey: ['qualityCheck', viewingCheckId],
+    queryFn: () => viewingCheckId ? fetchQualityCheckById(viewingCheckId) : null,
+    enabled: !!viewingCheckId,
   });
   
   // Fetch quality standards
@@ -76,11 +87,16 @@ const QualityControl: React.FC = () => {
   };
   
   const handleViewQualityCheck = (id: string) => {
-    toast.info(`Viewing quality check ${id}`);
+    setViewingCheckId(id);
+  };
+  
+  const handleCloseViewDialog = () => {
+    setViewingCheckId(null);
   };
   
   const handleEditQualityCheck = (id: string) => {
-    toast.info(`Editing quality check ${id}`);
+    setEditingCheckId(id);
+    setIsCreateDialogOpen(true);
   };
   
   const handleDeleteQualityCheck = async (id: string) => {
@@ -198,7 +214,18 @@ const QualityControl: React.FC = () => {
       <AddQualityCheckForm 
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
+        qualityCheckId={editingCheckId}
+        onSuccess={() => setEditingCheckId(null)}
       />
+
+      {viewingCheckId && (
+        <QualityCheckDetailDialog
+          open={!!viewingCheckId}
+          onOpenChange={handleCloseViewDialog}
+          qualityCheck={viewingCheck}
+          isLoading={isLoadingViewCheck}
+        />
+      )}
     </Layout>
   );
 };
