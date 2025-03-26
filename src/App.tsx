@@ -47,10 +47,10 @@ function App() {
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path="/team" element={<Team />} />
                 
-                {/* Additional routes */}
+                {/* Additional routes - fixing the path names */}
                 <Route path="/scheduling" element={<Scheduling />} />
                 <Route path="/finance" element={<Finance />} />
-                <Route path="/quality" element={<QualityControl />} />
+                <Route path="/quality-control" element={<QualityControl />} />
                 <Route path="/analytics" element={<Analytics />} />
                 
                 {/* Redirect root to dashboard */}
