@@ -194,6 +194,119 @@ export type Database = {
         }
         Relationships: []
       }
+      quality_check_results: {
+        Row: {
+          comments: string | null
+          created_at: string
+          id: string
+          passed: boolean
+          quality_check_id: string
+          standard_id: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          passed: boolean
+          quality_check_id: string
+          standard_id: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          passed?: boolean
+          quality_check_id?: string
+          standard_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_check_results_quality_check_id_fkey"
+            columns: ["quality_check_id"]
+            isOneToOne: false
+            referencedRelation: "quality_checks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_check_results_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "quality_standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_checks: {
+        Row: {
+          action_items: string | null
+          created_at: string
+          id: string
+          inspection_date: string
+          inspector: string
+          notes: string | null
+          rating: number | null
+          status: string
+          updated_at: string
+          work_order_id: number | null
+        }
+        Insert: {
+          action_items?: string | null
+          created_at?: string
+          id?: string
+          inspection_date?: string
+          inspector: string
+          notes?: string | null
+          rating?: number | null
+          status: string
+          updated_at?: string
+          work_order_id?: number | null
+        }
+        Update: {
+          action_items?: string | null
+          created_at?: string
+          id?: string
+          inspection_date?: string
+          inspector?: string
+          notes?: string | null
+          rating?: number | null
+          status?: string
+          updated_at?: string
+          work_order_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_checks_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_standards: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       scheduling: {
         Row: {
           created_at: string | null
