@@ -1,10 +1,9 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   CalendarClock,
@@ -90,7 +89,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ open = true }) => {
   const location = useLocation();
   const { user, profile, signOut, isAdmin } = useAuth();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const collapsed = !open && !isMobile;
 
   const handleSignOut = () => {
@@ -103,7 +102,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ open = true }) => {
 
   return (
     <>
-      {/* Mobile sidebar backdrop */}
       {isMobile && open && (
         <div
           className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
@@ -111,7 +109,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ open = true }) => {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 flex h-full flex-col bg-sidebar border-r",
@@ -124,7 +121,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ open = true }) => {
           isMobile ? "border-r-0 bg-background/95 backdrop-blur-sm" : ""
         )}
       >
-        {/* Sidebar header with logo/title */}
         <div
           className={cn(
             "flex h-16 items-center border-b px-4",
@@ -181,7 +177,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ open = true }) => {
           )}
         </div>
 
-        {/* Sidebar content with navigation */}
         <div className="flex-1 overflow-auto py-4">
           <nav className="grid gap-1 px-2">
             <SidebarLink
@@ -256,7 +251,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ open = true }) => {
           </nav>
         </div>
 
-        {/* Sidebar footer with user menu */}
         <div
           className={cn(
             "mt-auto flex border-t p-4",
