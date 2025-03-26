@@ -34,26 +34,24 @@ function App() {
           <AuthProvider>
             <TooltipProvider>
               <Routes>
-                {/* Auth Routes - redirecting to dashboard */}
-                <Route path="/auth/login" element={<Navigate to="/dashboard" />} />
-                <Route path="/auth/register" element={<Navigate to="/dashboard" />} />
-                <Route path="/auth/forgot-password" element={<Navigate to="/dashboard" />} />
-                <Route path="/auth/reset-password" element={<Navigate to="/dashboard" />} />
+                {/* Auth Routes */}
+                <Route path="/auth/login" element={<Login />} />
+                <Route path="/auth/register" element={<Register />} />
+                <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+                <Route path="/auth/reset-password" element={<ResetPassword />} />
                 
-                {/* All pages now accessible without authentication */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/customers" element={<Customers />} />
-                <Route path="/inventory" element={<Inventory />} />
-                <Route path="/team" element={<Team />} />
+                {/* Protected Routes */}
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+                <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
+                <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+                <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
+                <Route path="/scheduling" element={<ProtectedRoute><Scheduling /></ProtectedRoute>} />
+                <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+                <Route path="/quality-control" element={<ProtectedRoute><QualityControl /></ProtectedRoute>} />
+                <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
                 
-                {/* Additional routes - fixing the path names */}
-                <Route path="/scheduling" element={<Scheduling />} />
-                <Route path="/finance" element={<Finance />} />
-                <Route path="/quality-control" element={<QualityControl />} />
-                <Route path="/analytics" element={<Analytics />} />
-                
-                {/* Redirect root to dashboard */}
+                {/* Redirect root to login if not authenticated */}
                 <Route path="/" element={<Navigate to="/dashboard" />} />
                 
                 {/* 404 Route */}

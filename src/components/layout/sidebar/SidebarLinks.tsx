@@ -64,8 +64,6 @@ export const SidebarLinks: React.FC<SidebarLinksProps> = ({ collapsed, isAdmin }
         label="Finance"
         active={location.pathname === "/finance"}
         collapsed={collapsed}
-        adminOnly={true}
-        isAdmin={isAdmin}
       />
       <SidebarLink
         to="/analytics"
@@ -73,8 +71,6 @@ export const SidebarLinks: React.FC<SidebarLinksProps> = ({ collapsed, isAdmin }
         label="Analytics"
         active={location.pathname === "/analytics"}
         collapsed={collapsed}
-        adminOnly={true}
-        isAdmin={isAdmin}
       />
       <SidebarLink
         to="/quality-control"
