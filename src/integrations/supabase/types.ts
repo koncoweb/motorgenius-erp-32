@@ -45,6 +45,50 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_transactions: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string | null
+          date: string
+          description: string | null
+          id: string
+          related_work_order_id: number | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          related_work_order_id?: number | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          related_work_order_id?: number | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_transactions_related_work_order_id_fkey"
+            columns: ["related_work_order_id"]
+            isOneToOne: false
+            referencedRelation: "project"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory: {
         Row: {
           category: string
@@ -248,7 +292,15 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      financial_summaries: {
+        Row: {
+          month: string | null
+          net_income: number | null
+          total_expenses: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_role: {
