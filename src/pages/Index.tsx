@@ -139,7 +139,7 @@ const Index: React.FC = () => {
       </div>
       
       <div className="grid gap-6 mt-6 md:grid-cols-7">
-        <DashboardCard title="Revenue Overview" className="md:col-span-4">
+        <DashboardCard title="Revenue Overview" className="md:col-span-4 backdrop-blur-sm bg-card/50 border border-muted/30">
           <Tabs defaultValue="monthly" className="w-full">
             <TabsList className="mb-4">
               <TabsTrigger value="weekly">Mingguan</TabsTrigger>
@@ -153,10 +153,10 @@ const Index: React.FC = () => {
                     data={salesData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" stroke="#888888" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" opacity={0.3} />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <YAxis 
-                      stroke="#888888" 
+                      stroke="hsl(var(--muted-foreground))" 
                       fontSize={12} 
                       tickFormatter={(value) => formatRupiah(value)} 
                     />
@@ -164,17 +164,18 @@ const Index: React.FC = () => {
                       formatter={(value) => [formatRupiah(value as number), "Revenue"]} 
                       contentStyle={{ 
                         borderRadius: '8px', 
-                        border: '1px solid #e2e8f0', 
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                        border: '1px solid hsl(var(--muted))', 
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        backgroundColor: 'hsl(var(--card))'
                       }} 
                     />
                     <Line 
                       type="monotone" 
                       dataKey="total" 
                       stroke="hsl(var(--primary))" 
-                      strokeWidth={2} 
-                      dot={{ r: 4 }} 
-                      activeDot={{ r: 6 }} 
+                      strokeWidth={3} 
+                      dot={{ r: 4, fill: 'hsl(var(--primary))' }} 
+                      activeDot={{ r: 6, stroke: 'hsl(var(--background))', strokeWidth: 2 }} 
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -187,10 +188,10 @@ const Index: React.FC = () => {
                     data={salesData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" stroke="#888888" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" opacity={0.3} />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <YAxis 
-                      stroke="#888888" 
+                      stroke="hsl(var(--muted-foreground))" 
                       fontSize={12} 
                       tickFormatter={(value) => formatRupiah(value)} 
                     />
@@ -198,17 +199,18 @@ const Index: React.FC = () => {
                       formatter={(value) => [formatRupiah(value as number), "Revenue"]} 
                       contentStyle={{ 
                         borderRadius: '8px', 
-                        border: '1px solid #e2e8f0', 
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                        border: '1px solid hsl(var(--muted))', 
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        backgroundColor: 'hsl(var(--card))'
                       }} 
                     />
                     <Line 
                       type="monotone" 
                       dataKey="total" 
                       stroke="hsl(var(--primary))" 
-                      strokeWidth={2} 
-                      dot={{ r: 4 }} 
-                      activeDot={{ r: 6 }} 
+                      strokeWidth={3} 
+                      dot={{ r: 4, fill: 'hsl(var(--primary))' }} 
+                      activeDot={{ r: 6, stroke: 'hsl(var(--background))', strokeWidth: 2 }} 
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -221,10 +223,10 @@ const Index: React.FC = () => {
                     data={salesData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                    <XAxis dataKey="name" stroke="#888888" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" opacity={0.3} />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
                     <YAxis 
-                      stroke="#888888" 
+                      stroke="hsl(var(--muted-foreground))" 
                       fontSize={12} 
                       tickFormatter={(value) => formatRupiah(value)} 
                     />
@@ -232,17 +234,18 @@ const Index: React.FC = () => {
                       formatter={(value) => [formatRupiah(value as number), "Revenue"]} 
                       contentStyle={{ 
                         borderRadius: '8px', 
-                        border: '1px solid #e2e8f0', 
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                        border: '1px solid hsl(var(--muted))', 
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        backgroundColor: 'hsl(var(--card))'
                       }} 
                     />
                     <Line 
                       type="monotone" 
                       dataKey="total" 
                       stroke="hsl(var(--primary))" 
-                      strokeWidth={2} 
-                      dot={{ r: 4 }} 
-                      activeDot={{ r: 6 }} 
+                      strokeWidth={3} 
+                      dot={{ r: 4, fill: 'hsl(var(--primary))' }} 
+                      activeDot={{ r: 6, stroke: 'hsl(var(--background))', strokeWidth: 2 }} 
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -251,25 +254,26 @@ const Index: React.FC = () => {
           </Tabs>
         </DashboardCard>
         
-        <ActivityFeed activities={recentActivities} className="md:col-span-3" />
+        <ActivityFeed activities={recentActivities} className="md:col-span-3 backdrop-blur-sm bg-card/50 border border-muted/30" />
       </div>
       
       <div className="grid gap-6 mt-6 md:grid-cols-2">
-        <DashboardCard title="Tipe Work Order">
+        <DashboardCard title="Tipe Work Order" className="backdrop-blur-sm bg-card/50 border border-muted/30">
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={workOrderData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="name" stroke="#888888" fontSize={12} />
-                <YAxis stroke="#888888" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" opacity={0.3} />
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <Tooltip 
                   contentStyle={{ 
                     borderRadius: '8px', 
-                    border: '1px solid #e2e8f0', 
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                    border: '1px solid hsl(var(--muted))', 
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                    backgroundColor: 'hsl(var(--card))'
                   }} 
                 />
                 <Legend />
@@ -284,7 +288,7 @@ const Index: React.FC = () => {
           </div>
         </DashboardCard>
         
-        <DashboardCard title="Ringkasan Keuangan">
+        <DashboardCard title="Ringkasan Keuangan" className="backdrop-blur-sm bg-card/50 border border-muted/30">
           <div className="space-y-8">
             <div className="flex items-center justify-between">
               <div>

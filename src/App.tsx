@@ -13,6 +13,7 @@ import Scheduling from "./pages/Scheduling";
 import Finance from "./pages/Finance";
 import QualityControl from "./pages/QualityControl";
 import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
                 <Route path="/quality-control" element={<ProtectedRoute><QualityControl /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                 
                 {/* Redirect root to login if not authenticated */}
                 <Route path="/" element={<Navigate to="/dashboard" />} />

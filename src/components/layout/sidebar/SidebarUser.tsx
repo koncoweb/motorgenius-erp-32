@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -41,12 +42,12 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
     return (
       <>
         <div className="mb-2 flex justify-center">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 border border-primary/20">
             <AvatarImage
               src={profile?.avatar_url || undefined}
               alt={profile?.first_name || user?.email || "User"}
             />
-            <AvatarFallback>{initials}</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-primary">{initials}</AvatarFallback>
           </Avatar>
         </div>
         <div className="flex flex-col gap-1">
@@ -55,7 +56,7 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9"
+                className="h-9 w-9 transition-colors hover:text-primary"
                 asChild
               >
                 <Link to="/settings">
@@ -71,7 +72,7 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9"
+                className="h-9 w-9 transition-colors hover:text-destructive"
                 onClick={handleSignOut}
               >
                 <LogOut className="h-5 w-5" />
@@ -88,12 +89,12 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
   return (
     <>
       <div className="flex items-center gap-2">
-        <Avatar className="h-8 w-8">
+        <Avatar className="h-8 w-8 border border-primary/20">
           <AvatarImage
             src={profile?.avatar_url || undefined}
             alt={profile?.first_name || user?.email || "User"}
           />
-          <AvatarFallback>{initials}</AvatarFallback>
+          <AvatarFallback className="bg-primary/10 text-primary">{initials}</AvatarFallback>
         </Avatar>
         <div>
           <p className="text-sm font-medium">
@@ -108,18 +109,18 @@ export const SidebarUser: React.FC<SidebarUserProps> = ({
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="transition-colors hover:text-primary">
             <Settings className="h-5 w-5" />
             <span className="sr-only">Settings</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="backdrop-blur-sm bg-card/80 border border-muted/30">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild className="cursor-pointer">
             <Link to="/settings">Settings</Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleSignOut}>
+          <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
             Log out
           </DropdownMenuItem>
         </DropdownMenuContent>

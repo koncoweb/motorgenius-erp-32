@@ -4,10 +4,11 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 220 33% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -37,13 +38,13 @@
 
     --radius: 0.75rem;
 
-    --sidebar-background: 210 40% 98%;
-    --sidebar-foreground: 222.2 47.4% 11.2%;
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 210 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
     --sidebar-ring: 210 100% 50%;
   }
 
@@ -57,8 +58,8 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 100% 50%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 210 100% 60%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -78,12 +79,12 @@
     
     --sidebar-background: 222.2 84% 4.9%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 210 100% 50%;
+    --sidebar-primary: 210 100% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217.2 32.6% 17.5%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 210 100% 50%;
+    --sidebar-ring: 210 100% 60%;
   }
 }
 
@@ -93,7 +94,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-urbanist;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -124,10 +125,82 @@
     animation-timing-function: ease-in-out;
     animation-fill-mode: both;
   }
+  
+  /* Futuristic elements */
+  .card-glow {
+    @apply relative overflow-hidden;
+  }
+  
+  .card-glow::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 transition-opacity duration-1500;
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  .card-glow:hover::before {
+    @apply opacity-100;
+  }
+  
+  .futuristic-border {
+    @apply relative;
+  }
+  
+  .futuristic-border::after {
+    content: '';
+    @apply absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300;
+  }
+  
+  .futuristic-border:hover::after {
+    @apply w-full;
+  }
+  
+  .neo-btn {
+    @apply relative overflow-hidden transition-all duration-300 z-10;
+  }
+  
+  .neo-btn::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-full bg-primary/20 -translate-x-full transition-transform duration-300 z-[-1];
+  }
+  
+  .neo-btn:hover::before {
+    @apply translate-x-0;
+  }
 }
 
 @layer utilities {
-  .font-inter {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  .font-urbanist {
+    font-family: 'Urbanist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent;
+  }
+  
+  .divider-gradient {
+    @apply h-px bg-gradient-to-r from-transparent via-muted to-transparent;
+  }
+  
+  .highlight-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
   }
 }

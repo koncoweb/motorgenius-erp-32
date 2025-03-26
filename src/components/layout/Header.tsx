@@ -5,6 +5,7 @@ import {
   Menu, 
   Search,
   Maximize,
+  Minimize,
   Bell
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   useEffect(() => {
     fetchNotifications();
@@ -54,8 +56,19 @@ export const Header: React.FC<HeaderProps> = ({
       })
       .subscribe();
       
+    // Check initial fullscreen state
+    setIsFullscreen(!!document.fullscreenElement);
+    
+    // Add fullscreen change event listener
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+      
     return () => {
       supabase.removeChannel(channel);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
   
@@ -121,6 +134,20 @@ export const Header: React.FC<HeaderProps> = ({
       toast.error("Failed to mark all notifications as read");
     }
   };
+  
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      document.documentElement.requestFullscreen().catch(err => {
+        toast.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   return (
     <header className="flex items-center h-16 px-6 border-b bg-card/50 backdrop-blur-sm">
@@ -139,7 +166,7 @@ export const Header: React.FC<HeaderProps> = ({
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input 
             type="search" 
-            placeholder="Search..." 
+            placeholder="Cari..." 
             className="pl-8 w-[200px] lg:w-[300px] bg-background" 
           />
         </div>
@@ -155,13 +182,13 @@ export const Header: React.FC<HeaderProps> = ({
         
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Maximize className="h-5 w-5" />
-              <span className="sr-only">Fullscreen</span>
+            <Button variant="ghost" size="icon" onClick={toggleFullscreen}>
+              {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+              <span className="sr-only">Toggle Fullscreen</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Toggle Fullscreen</p>
+            <p>{isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}</p>
           </TooltipContent>
         </Tooltip>
       </div>
