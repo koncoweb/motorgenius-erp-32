@@ -100,10 +100,11 @@ const Scheduling: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = (data: any) => {
-    // Ensure data has the correct types before passing to mutation
+    // Process the form data, converting string IDs to numbers or null
     const appointmentData = {
       ...data,
-      // These are already converted to numbers or null in the form's handleSubmit
+      work_order_id: data.work_order_id ? parseInt(data.work_order_id) : null,
+      team_member_id: data.team_member_id ? parseInt(data.team_member_id) : null,
     };
     
     if (editingAppointment) {

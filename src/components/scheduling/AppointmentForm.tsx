@@ -41,13 +41,14 @@ interface AppointmentFormProps {
   selectedDate: Date;
 }
 
+// Update the FormValues interface to match how we're actually using the data
 interface FormValues {
   title: string;
   description: string;
   start_time: string;
   end_time: string;
-  work_order_id: string;
-  team_member_id: string;
+  work_order_id: string; // Keep as string in the form
+  team_member_id: string; // Keep as string in the form
   status: string;
   location: string;
   notes: string;
@@ -111,7 +112,7 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
       team_member_id: values.team_member_id ? parseInt(values.team_member_id) : null,
     };
     
-    onSubmit(processedValues);
+    onSubmit(values); // Pass the original values (not processedValues) since onSubmit expects FormValues
   };
 
   return (
