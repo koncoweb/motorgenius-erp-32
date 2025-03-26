@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -101,13 +100,19 @@ const Scheduling: React.FC = () => {
 
   // Handle form submission
   const handleSubmit = (data: any) => {
+    // Ensure data has the correct types before passing to mutation
+    const appointmentData = {
+      ...data,
+      // These are already converted to numbers or null in the form's handleSubmit
+    };
+    
     if (editingAppointment) {
       updateAppointmentMutation.mutate({
         id: editingAppointment.id,
-        updates: data,
+        updates: appointmentData,
       });
     } else {
-      addAppointmentMutation.mutate(data);
+      addAppointmentMutation.mutate(appointmentData);
     }
   };
 

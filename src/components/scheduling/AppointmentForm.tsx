@@ -103,11 +103,15 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
   }, [isOpen, appointment, form, defaultStartTime, defaultEndTime]);
 
   const handleSubmit = (values: FormValues) => {
-    onSubmit({
+    // Create a new object with the correct types
+    const processedValues = {
       ...values,
+      // Convert string IDs to numbers or null if empty
       work_order_id: values.work_order_id ? parseInt(values.work_order_id) : null,
       team_member_id: values.team_member_id ? parseInt(values.team_member_id) : null,
-    });
+    };
+    
+    onSubmit(processedValues);
   };
 
   return (
@@ -308,4 +312,3 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
