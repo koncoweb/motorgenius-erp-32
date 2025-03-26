@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      analytics_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metric_category: string
+          metric_date: string
+          metric_name: string
+          metric_value: number
+          source_page: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metric_category: string
+          metric_date?: string
+          metric_name: string
+          metric_value: number
+          source_page: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metric_category?: string
+          metric_date?: string
+          metric_name?: string
+          metric_value?: number
+          source_page?: string
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           company: string | null
@@ -122,6 +152,39 @@ export type Database = {
           name?: string
           sku?: string
           unit_price?: number
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          link: string | null
+          notification_type: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          notification_type: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          notification_type?: string
+          title?: string
+          user_id?: string | null
         }
         Relationships: []
       }

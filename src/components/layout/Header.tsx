@@ -3,7 +3,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Menu, 
-  Bell, 
   Search,
   Maximize,
 } from "lucide-react";
@@ -13,6 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { NotificationDropdown } from "@/components/notifications/NotificationDropdown";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -47,18 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
       
       <div className="flex items-center gap-3 ml-auto">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
-              <span className="sr-only">Notifications</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Notifications</p>
-          </TooltipContent>
-        </Tooltip>
+        <NotificationDropdown />
         
         <Tooltip>
           <TooltipTrigger asChild>
