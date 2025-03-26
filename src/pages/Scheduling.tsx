@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -103,8 +104,8 @@ const Scheduling: React.FC = () => {
     // Process the form data, converting string IDs to numbers or null
     const appointmentData = {
       ...data,
-      work_order_id: data.work_order_id ? parseInt(data.work_order_id) : null,
-      team_member_id: data.team_member_id ? parseInt(data.team_member_id) : null,
+      work_order_id: data.work_order_id === "none" ? null : data.work_order_id ? parseInt(data.work_order_id) : null,
+      team_member_id: data.team_member_id === "none" ? null : data.team_member_id ? parseInt(data.team_member_id) : null,
     };
     
     if (editingAppointment) {
