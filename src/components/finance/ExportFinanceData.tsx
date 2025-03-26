@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { FileDown, FileUp, X } from "lucide-react";
+import { FileDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,9 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { formatDate } from "@/lib/utils";
+import { ExportFieldsSelection } from "./ExportFieldsSelection";
+import { useFinanceExport } from "@/hooks/useFinanceExport";
 import { FinancialTransaction } from "@/services/financeService";
 
 interface ExportFinanceDataProps {
@@ -28,86 +28,7 @@ interface ExportFinanceDataProps {
 
 export function ExportFinanceData({ transactions }: ExportFinanceDataProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [format, setFormat] = useState("csv");
-  const [includeFields, setIncludeFields] = useState({
-    id: true,
-    type: true,
-    amount: true,
-    description: true,
-    category: true,
-    date: true,
-    related_work_order_id: true,
-    created_at: false,
-  });
-
-  const toggleField = (field: keyof typeof includeFields) => {
-    setIncludeFields((prev) => ({ ...prev, [field]: !prev[field] }));
-  };
-
-  const exportData = () => {
-    if (transactions.length === 0) {
-      alert("No data to export.");
-      return;
-    }
-
-    // Filter included fields
-    const processedData = transactions.map((transaction) => {
-      const filteredTransaction: Record<string, any> = {};
-      
-      // Only include selected fields
-      Object.keys(includeFields).forEach((key) => {
-        if (includeFields[key as keyof typeof includeFields]) {
-          let value = transaction[key as keyof FinancialTransaction];
-          
-          // Format date fields
-          if (key === "date" || key === "created_at") {
-            value = formatDate(value as string);
-          }
-          
-          filteredTransaction[key] = value;
-        }
-      });
-      
-      return filteredTransaction;
-    });
-
-    // Generate file content based on format
-    let content = "";
-    let fileName = `finance_data_${formatDate(new Date().toISOString())}`;
-    let mimeType = "";
-
-    if (format === "csv") {
-      // CSV Format
-      const headers = Object.keys(processedData[0]).join(",");
-      const rows = processedData.map((item) => 
-        Object.values(item).map(value => 
-          typeof value === "string" ? `"${value.replace(/"/g, '""')}"` : value
-        ).join(",")
-      ).join("\n");
-      
-      content = `${headers}\n${rows}`;
-      fileName += ".csv";
-      mimeType = "text/csv";
-    } else if (format === "json") {
-      // JSON Format
-      content = JSON.stringify(processedData, null, 2);
-      fileName += ".json";
-      mimeType = "application/json";
-    }
-
-    // Create and download file
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    setIsOpen(false);
-  };
+  const { format, setFormat, includeFields, toggleField, exportData } = useFinanceExport(transactions);
 
   return (
     <>
@@ -144,75 +65,10 @@ export function ExportFinanceData({ transactions }: ExportFinanceDataProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Fields to Include</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="field-id" 
-                    checked={includeFields.id}
-                    onCheckedChange={() => toggleField("id")}
-                  />
-                  <Label htmlFor="field-id">ID</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="field-type" 
-                    checked={includeFields.type}
-                    onCheckedChange={() => toggleField("type")}
-                  />
-                  <Label htmlFor="field-type">Type</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="field-amount" 
-                    checked={includeFields.amount}
-                    onCheckedChange={() => toggleField("amount")}
-                  />
-                  <Label htmlFor="field-amount">Amount</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="field-description" 
-                    checked={includeFields.description}
-                    onCheckedChange={() => toggleField("description")}
-                  />
-                  <Label htmlFor="field-description">Description</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="field-category" 
-                    checked={includeFields.category}
-                    onCheckedChange={() => toggleField("category")}
-                  />
-                  <Label htmlFor="field-category">Category</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="field-date" 
-                    checked={includeFields.date}
-                    onCheckedChange={() => toggleField("date")}
-                  />
-                  <Label htmlFor="field-date">Date</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="field-related-work-order" 
-                    checked={includeFields.related_work_order_id}
-                    onCheckedChange={() => toggleField("related_work_order_id")}
-                  />
-                  <Label htmlFor="field-related-work-order">Related Work Order</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="field-created-at" 
-                    checked={includeFields.created_at}
-                    onCheckedChange={() => toggleField("created_at")}
-                  />
-                  <Label htmlFor="field-created-at">Created At</Label>
-                </div>
-              </div>
-            </div>
+            <ExportFieldsSelection 
+              includeFields={includeFields}
+              onToggleField={toggleField}
+            />
           </div>
 
           <DialogFooter>
