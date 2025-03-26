@@ -312,3 +312,4 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
       </DialogContent>
     </Dialog>
   );
+};
